@@ -1,5 +1,6 @@
 package io.github.xingguanglang.casinotables.flight;
 
+import io.github.xingguanglang.casinotables.arena.ArenaBlocks;
 import io.github.xingguanglang.casinotables.CasinoTablesPlugin;
 import io.github.xingguanglang.casinotables.Items;
 import io.github.xingguanglang.casinotables.Messages;
@@ -436,7 +437,7 @@ final class FlightArena {
     }
 
     private void set(int relativeX, int dy, int relativeZ, Material material) {
-        world.getBlockAt(centerX + relativeX, y + dy, centerZ + relativeZ).setType(material, false);
+        ArenaBlocks.set(world, centerX + relativeX, y + dy, centerZ + relativeZ, material);
     }
 
     private void setFloorButton(int relativeX, int relativeZ) {

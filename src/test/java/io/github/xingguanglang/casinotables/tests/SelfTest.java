@@ -44,6 +44,7 @@ public final class SelfTest {
         testArenaShapes();
         testComputedMessageKeys();
         testEveryLiteralKeyExists(args);
+        testBlocksGoThroughArenaBlocks(args);
         testLanguageFiles();
         testBotArchetypes();
         check(io.github.xingguanglang.casinotables.Messages.missingKeys().isEmpty(),
@@ -593,6 +594,43 @@ public final class SelfTest {
 
     /** 用枚举名拼键的调用点数量，testComputedMessageKeys 覆盖的就是这些。 */
     private static final int COMPUTED_KEY_SITES = 8;
+
+    /**
+     * 摆建筑方块只能走 ArenaBlocks.set。
+     *
+     * <p>直接 setType 的树叶 persistent 是 false，原版会当成被砍断的树慢慢枯掉、
+     * 掉一地树苗，露天风格的墙和装饰树就这么烂出洞来。这条检查盯的是「有人又绕过去了」。
+     */
+    private static void testBlocksGoThroughArenaBlocks(String[] args) {
+        java.nio.file.Path sourceRoot = java.nio.file.Path.of(
+                args.length > 0 ? args[0] : System.getProperty("user.dir"), "src", "main", "java");
+        List<String> offenders = new ArrayList<>();
+        java.util.regex.Pattern fixedMaterial =
+                java.util.regex.Pattern.compile("[.]setType[(]Material[.]([A-Z_]+)");
+        try (java.util.stream.Stream<java.nio.file.Path> files =
+                     java.nio.file.Files.walk(sourceRoot)) {
+            for (java.nio.file.Path file : files.filter(f -> f.toString().endsWith(".java")).toList()) {
+                String name = file.getFileName().toString();
+                if (name.equals("ArenaBlocks.java")) continue;
+                List<String> lines = java.nio.file.Files.readString(file,
+                        java.nio.charset.StandardCharsets.UTF_8).lines().toList();
+                for (int index = 0; index < lines.size(); index++) {
+                    String line = lines.get(index);
+                    if (!line.contains(".setType(")) continue;
+                    // 规则是：材质来自调色板（也就是个变量）的，必须走 ArenaBlocks，
+                    // 因为那个变量随时可能是树叶。写死的字面量当场就能看出是不是树叶，
+                    // 不是就放行——比如飞行棋那颗紧接着要设朝向的石按钮。
+                    java.util.regex.Matcher literal = fixedMaterial.matcher(line);
+                    if (literal.find() && !literal.group(1).endsWith("_LEAVES")) continue;
+                    offenders.add(name + ":" + (index + 1) + "  " + line.trim());
+                }
+            }
+        } catch (java.io.IOException exception) {
+            throw new AssertionError("读取源码失败：" + exception.getMessage());
+        }
+        check(offenders.isEmpty(),
+                "这些地方绕过了 ArenaBlocks.set 直接摆方块，树叶会枯萎：" + offenders);
+    }
 
     private static void testArenaShapes() {
         check(ArenaShape.count() == 4, "赌场轮廓应有 4 种");
