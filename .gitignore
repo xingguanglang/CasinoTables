@@ -1,0 +1,14 @@
+# Build output
+build/
+target/
+*.jar
+*.class
+
+# Local test harness scratch
+run/
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.iml

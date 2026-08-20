@@ -1,0 +1,1182 @@
+# CasinoTables - 简体中文
+#
+# 所有面向玩家的文本都在这里。可以随意修改：首次启动时会复制到
+# plugins/CasinoTables/lang/，之后插件升级不会覆盖你改过的内容。
+# 删掉某个键会自动回落到 jar 里内置的英文版本。
+#
+# 格式使用 MiniMessage：https://docs.advntr.dev/minimessage/format.html
+# 花括号里的 {占位符} 由插件填入。
+
+# 插件发送的每条聊天消息前面的前缀。
+prefix: "<gray>[<gradient:#55ffff:#aa55ff>赌场</gradient><gray>] "
+
+help:
+  header: "<gradient:#55ffff:#aa55ff>—— {brand} 赌场桌游 ——</gradient>"
+  lines:
+    - "<yellow>/casino</yellow> <gray>- 打开主菜单，或显示当前对局的操作说明"
+    - "<yellow>/casino gui | chat</yellow> <gray>- 在背包菜单和聊天菜单之间切换"
+    - "<yellow>/casino create flight [赌注] | poker | blackjack</yellow> <gray>- 创建房间"
+    - "<yellow>/casino pieces <2|3|4></yellow> <gray>- 飞行棋每人的棋子数"
+    - "<yellow>/casino invite <玩家> [游戏] [赌注]</yellow> <gray>- 德州和 21 点不收固定赌注"
+    - "<yellow>/casino invitepanel</yellow> <gray>- 打开可以连续邀请多人的面板"
+    - "<yellow>/casino rooms</yellow> <gray>- 加入等待房间、坐进空位或旁观"
+    - "<yellow>/casino start</yellow> <gray>- 房主开始游戏"
+    - "<yellow>/casino wager</yellow> <gray>- 在聊天框设置飞行棋赌注（1～10000）"
+    - "<yellow>/casino leave</yellow> <gray>- 离桌或解散自己的房间"
+    - "<yellow>/casino blinds <小盲> <大盲></yellow> <gray>- 房主设置德州盲注"
+    - "<yellow>/casino buyin <上限></yellow> <gray>- 房主设置筹码携带上限"
+    - "<yellow>/casino casino [1～{styles}]</yellow> <gray>- 切换赌场装修；不带参数会列出全部"
+    - "<yellow>/casino shape [1～4]</yellow> <gray>- 切换赌场轮廓；不带参数会列出全部"
+    - "<yellow>/casino history</yellow> <gray>- 你最近的德州牌局"
+    - "<yellow>/casino bjhistory</yellow> <gray>- 你最近的 21 点牌局"
+    - "<yellow>/casino split</yellow> <gray>- 把主手里的一枚筹码等值分解"
+    - "<yellow>/casino merge</yellow> <gray>- 把可用筹码合并成尽可能大的面额"
+    - "<yellow>/casino accept|deny [玩家]</yellow> <gray>- 接受或拒绝邀请"
+    - "<yellow>/casino forfeit</yellow> <gray>- 当前对局认输或弃牌"
+    - "<yellow>/casino draw</yellow> <gray>- 申请或同意平局；全员同意后每人扣 5% 手续费"
+  admin-lines:
+    - "<yellow>/casino config set flight-time <5～600></yellow> <gray>- 飞行棋每回合秒数"
+    - "<yellow>/casino config set poker-time <5～600></yellow> <gray>- 德州每次行动秒数"
+    - "<yellow>/casino config set poker-rake <0～20></yellow> <gray>- 德州抽水百分比，默认 0.5"
+    - "<yellow>/casino luck poker <玩家> <1～100|off></yellow> <gray>- 秘密提升某人的牌运"
+    - "<yellow>/casino badluck poker <玩家> <1～100|off></yellow> <gray>- 秘密降低某人的牌运"
+    - "<yellow>/casino peek [玩家] [on|off]</yellow> <gray>- 查看全桌底牌；带玩家名可以开给别人"
+    - "<yellow>/casino floppeek [玩家] [on|off]</yellow> <gray>- 提前查看尚未发出的公牌"
+    - "<yellow>/casino reload</yellow> <gray>- 重载配置和语言文件"
+
+error:
+  no-permission: "<red>你没有权限。"
+  players-only: "<red>该命令需要玩家执行。"
+  unknown-game: "<red>游戏只能是 flight、poker 或 blackjack。"
+  unknown-player: "<red>找不到曾经进入过服务器的玩家「{player}」。</red>"
+  player-offline: "<red>玩家不在线。"
+  bad-amount: "<red>「{value}」不是有效金额。"
+
+config:
+  reloaded: "<green>配置已重载。"
+  reloaded-ingame: "<green>配置已重载；正在进行的对局不受影响。"
+  usage:
+    - "<yellow>/casino config get flight-time</yellow>"
+    - "<yellow>/casino config set flight-time <5～600 秒></yellow>"
+    - "<yellow>/casino config get poker-time</yellow>"
+    - "<yellow>/casino config set poker-time <5～600 秒></yellow>"
+    - "<yellow>/casino config get poker-rake</yellow>"
+    - "<yellow>/casino config set poker-rake <0～20 百分比></yellow>"
+  flight-time:
+    label: "飞行棋每位玩家的回合时间"
+    current: "<green>当前飞行棋每位玩家的回合时间：<white>{seconds} 秒</white>。"
+  poker-time:
+    label: "德州每位玩家的行动时间"
+    current: "<green>当前德州每位玩家的行动时间：<white>{seconds} 秒</white>。"
+  poker-rake:
+    current: "<green>当前德州赌场抽水：<white>{percent}%</white>。无人跟注而退回的筹码不抽水。"
+  time:
+    out-of-range: "<red>时间必须在 5～600 秒之间。"
+    not-a-number: "<red>时间必须是整数秒。"
+    applied: "<green>{label}已改为 <white>{seconds} 秒</white>；从下一场对应游戏开始生效。"
+  rake:
+    out-of-range: "<red>赌场抽水必须在 0～20 之间，按百分比填写，例如 0.5。</red>"
+    not-a-number: "<red>抽水必须是百分比数字，例如：/casino config set poker-rake 0.5</red>"
+    applied: "<green>德州赌场抽水已改为 <white>{percent}%</white>；从下一手牌开始生效。</green>"
+
+luck:
+  usage: "<yellow>/casino {command} poker <玩家> [1～100|off]</yellow>"
+  unknown-game: "<red>牌运只能设置给德州。</red>"
+  effect:
+    good: "好运"
+    bad: "差运"
+  pick:
+    best: "最好"
+    worst: "最差"
+  query: "<gray>{player} 的{game}{effect}权重：</gray><yellow>{percent}%</yellow><gray>（仅管理员可见）</gray>"
+  opposite-active: " <dark_gray>（当前实际启用了相反效果 {percent}%）</dark_gray>"
+  not-a-number: "<red>{effect}权重必须是 1～100 的整数，或 off。</red>"
+  out-of-range: "<red>{effect}权重必须在 1～100 之间。</red>"
+  cleared: "<green>已秘密关闭 {player} 的{game}牌运权重。</green>"
+  applied: "<green>已秘密设置 {player} 的{game}{effect}权重为 {percent}%；命中时会从多组随机候选牌中取{pick}的一组。设置该效果会覆盖原来的相反效果。</green>"
+
+peek:
+  name:
+    hand: "看牌"
+    board: "看公牌"
+  detail:
+    hand: "可看到全桌玩家的底牌"
+    board: "可提前看到德州尚未发出的翻牌、转牌和河牌"
+  usage: "<yellow>/casino {command} [玩家] [on|off]</yellow>"
+  offline-target: "<red>玩家 <yellow>{player}</yellow> 不在线；{what}开关只对在线玩家生效。</red>"
+  self:
+    enabled: "<green><bold>{what}已开启。</bold></green> <gray>你现在{detail}；仅你可见。</gray>"
+    disabled: "<yellow>{what}已关闭，隐藏的牌已立即恢复。</yellow>"
+  granted: "<green>已为 <white>{player}</white> 开启{what}。</green>"
+  revoked: "<yellow>已关闭 <white>{player}</white> 的{what}。</yellow>"
+  target:
+    enabled: "<green><bold>管理员为你开启了{what}。</bold></green> <gray>你现在{detail}；仅你可见。</gray>"
+    disabled: "<yellow>管理员关闭了你的{what}，隐藏的牌已恢复。</yellow>"
+
+create:
+  usage: "<red>用法：/casino create <flight [赌注]|poker|blackjack>"
+invite:
+  usage: "<red>用法：/casino invite <玩家> [flight|poker|blackjack] [赌注]"
+  no-room: "<red>请指定游戏，或先创建一个由你担任房主的房间。"
+join:
+  usage: "<red>用法：/casino join <房主></red>"
+pieces:
+  usage: "<red>用法：/casino pieces <2|3|4>"
+  invalid: "<red>棋子数只能是 2、3 或 4。"
+blinds:
+  usage: "<red>用法：/casino blinds <小盲> [大盲]（不填大盲时自动为小盲×2）"
+  not-a-number: "<red>盲注必须是整数，例如：/casino blinds 10"
+buyin:
+  usage: "<red>用法：/casino buyin <携带金币上限>"
+  not-a-number: "<red>携带金币上限必须是整数，例如：/casino buyin 2000"
+
+decor:
+  list:
+    header: "<gold><bold>—— 赌场装修（共 {count} 种）——</bold></gold>"
+    entry: "<white>{id} {name}</white> <gray>· {description}</gray> <yellow><click:run_command:'/casino casino {id}'><hover:show_text:'点击选择'>[选择]</hover></click></yellow>"
+    selected: "<green><bold>✓ {id} {name}</bold></green> <gray>· {description}</gray>"
+  unknown: "<red>没有这种装修；可填 1～{count} 或名称，直接输入 /casino casino 查看全部。</red>"
+  classic: { name: "皇家绿毯", description: "室内豪华赌场；石英地面配黑石金边墙，经典绿桌" }
+  luminous: { name: "海晶玻璃", description: "室内灯光赌场；萤石与海晶灯桌面，上覆玻璃" }
+  nature: { name: "露天自然", description: "露天花园赌场；草地、原木与灯笼环绕，无墙无顶" }
+  midnight: { name: "午夜黑金", description: "黑石地面、深板岩墙、黑石砖顶，配金饰与萤石" }
+  crimson: { name: "绯红丝绒", description: "深板岩地面、深色橡木墙、去皮原木顶，红丝绒牌桌" }
+  azure: { name: "深海蓝调", description: "海晶砖地面、暗海晶墙、海晶石顶，青金石点缀" }
+  amethyst: { name: "紫晶殿堂", description: "石英地面、紫珀墙、紫珀柱顶，紫水晶点缀" }
+  sakura: { name: "樱花庭院", description: "露天樱花庭院；苔藓地面、樱花木与粉樱，无墙无顶" }
+  desert: { name: "沙漠绿洲", description: "平滑沙岩地面、切制沙岩墙、普通沙岩顶，暖色调" }
+  nether: { name: "地狱熔岩", description: "下界砖地面、红色下界砖墙、雕纹下界砖顶，菌光体照明" }
+  glacier: { name: "极地冰宫", description: "雪块地面、浮冰墙、蓝冰顶，冷白灯光" }
+  copper: { name: "蒸汽铜殿", description: "深板岩地面、切制铜墙、氧化铜顶，蒸汽朋克风" }
+  ender: { name: "末地虚空", description: "末地石砖地面、紫珀墙、末地石顶，异界配色" }
+
+shape:
+  list:
+    header: "<gold><bold>—— 赌场轮廓（共 {count} 种）——</bold></gold>"
+    entry: "<white>{id} {name}</white> <gray>· {description}</gray> <yellow><click:run_command:'/casino shape {id}'><hover:show_text:'点击选择'>[选择]</hover></click></yellow>"
+    selected: "<green><bold>✓ {id} {name}</bold></green> <gray>· {description}</gray>"
+    footer: "<gray>轮廓与装修是两个独立设置，可以任意搭配。</gray>"
+  unknown: "<red>没有这种轮廓；可填 1～{count} 或名称，直接输入 /casino shape 查看全部。</red>"
+  rectangle: { name: "方形", description: "四面直墙的经典包间" }
+  round: { name: "圆形", description: "环形外墙围成的圆厅，中央圆桌" }
+  octagon: { name: "八边形", description: "切掉四角的八边形大厅，介于方与圆之间" }
+  open: { name: "开放式", description: "悬空圆台，无墙无顶，只在边缘立一圈柱子" }
+
+# ---- merged from lang-fragments ----
+blackjack:
+  announce:
+    hand-detail: "<white>荷官 {dealer}</white>\n<gray>{seconds} 秒后开始下一手</gray>"
+    hand-over: "<gold><bold>第 {hand} 手结束</bold></gold>"
+  arena:
+    dealer-name: "<gold><bold>◆ {brand} 21 点荷官 ◆</bold></gold>"
+    rules: "<yellow>黑杰克赔 3:2 · 其余获胜赔 1:1 · 平局退注</yellow>\n<gray>荷官 17 点停牌（软 17 同样停） · 保险赔 2:1</gray>"
+    seat-boot: "<gold><bold>荷官</bold></gold> <gray>[ ? ] [ ? ]</gray>\n<gray>等待发牌</gray>\n<gray>把筹码放进下注区</gray>"
+    title: "<gold><bold>{brand} 21 点</bold></gold>"
+  bank:
+    entry: "<white>{player}</white> <yellow>{chips}</yellow> <gray>可补 {room}</gray>"
+    header: "<gold><bold>◆ 21 点皇家银行 ◆</bold></gold>"
+    hint: "<green>右键绿宝石补码 · 携带上限 {limit}</green>"
+    loading: "<gold><bold>◆ 21 点皇家银行 ◆</bold></gold>\n<gray>正在读取玩家账户……</gray>"
+  bet:
+    already-confirmed: "<yellow>你已经确认过下注了。</yellow>"
+    already-locked: "<yellow>已确认下注，本手不能再改。</yellow>"
+    already-minimum: "<green>已经达到最低下注。</green>"
+    below-minimum: "<yellow>本手下注不足 {min}，已跳过这一手。</yellow>"
+    confirmed: "<green>已确认下注 {amount}。</green>"
+    locked-reclaim: "<yellow>已确认下注，本手不能收回。</yellow>"
+    no-chips: "<red>可用筹码不足。</red>"
+    not-betting: "<red>现在不是下注阶段。</red>"
+    nothing-to-reclaim: "<gray>下注区里没有待确认的筹码。</gray>"
+    reclaimed: "<yellow>已收回 {amount} 筹码。</yellow>"
+    timeout: "<gray>下注时间到，按当前金额自动下注。</gray>"
+    topped-to-minimum: "<green>已补足最低下注 {amount}，请按确认下注。</green>"
+    under-minimum: "<red>下注不足最低 {min}；请继续放筹码或按一键最低注。</red>"
+  button:
+    bet-confirm: "<yellow><bold>确认下注</bold></yellow>"
+    bet-min: "<yellow><bold>一键最低注</bold></yellow>"
+    bet-reclaim: "<red><bold>收回筹码</bold></red>"
+    double: "<gold><bold>双倍</bold></gold>"
+    hit: "<aqua><bold>要牌</bold></aqua>"
+    insurance: "<dark_aqua><bold>保险</bold></dark_aqua>"
+    leave-after-hand: "<gray><bold>本手后离桌</bold></gray>"
+    split: "<light_purple><bold>分牌</bold></light_purple>"
+    stand: "<gold><bold>停牌</bold></gold>"
+    top-up: "<green><bold>ATM 补充筹码</bold></green>"
+  card:
+    face-down: "<dark_gray><bold>[ 背面 ]</bold></dark_gray>"
+  cashout:
+    paid: "<green>桌上筹码已结算到账：</green><yellow>{amount}</yellow>。"
+    pending: "<red>结算暂未入账，已挂账自动重试：</red><yellow>{amount}</yellow>。"
+  chip:
+    insufficient: "<red>可用筹码不足：还能放入 <yellow>{remaining}</yellow>，这枚价值 <yellow>{value}</yellow>。可先分解筹码。</red>"
+    locked: "<yellow>已确认下注，本手不能再改；可先按收回筹码。</yellow>"
+    not-betting: "<red>现在不是下注阶段，不能放筹码。</red>"
+    over-max: "<red>单手下注上限为 <yellow>{max}</yellow>，这一枚放不下了。</red>"
+    placed: "<yellow>已放入 {value}，待确认下注共 <white>{total}</white>。</yellow> <gray>最低 {min}，按确认下注生效。</gray>"
+    wrong-zone: "<red>请把筹码放进你座位前方的下注区。</red>"
+  dealer:
+    blackjack: "<red><bold>荷官黑杰克！</bold></red>"
+    draw: "<gold>荷官补牌：</gold>{card} <gray>→ {total}</gray>"
+    hidden: "<gold><bold>荷官</bold></gold> <gray>[ ? ] [ ? ]</gray>"
+    label: "<gold><bold>荷官</bold></gold>"
+    no-draw: "<gray>所有玩家均已爆牌，荷官无需补牌。</gray>"
+    peek-note: "<light_purple>暗牌已提前显示，仅你可见</light_purple>"
+    reveal: "<gold><bold>荷官亮牌：</bold></gold>{cards} {total}"
+    showing: "<gray>明牌 {value}</gray>"
+    upcard: "<gold><bold>荷官明牌：</bold></gold>{card} <dark_gray><bold>[ 背面 ]</bold></dark_gray> <gray>（明牌 {value} 点）</gray>"
+  double:
+    bust: "<red>双倍后爆牌。</red>"
+    done: "<gold><bold>双倍下注至 {amount}。</bold></gold> {card} <gray>→ {hand}</gray>"
+    not-allowed: "<red>这手牌不能双倍：只能在前两张牌且筹码足够时使用。</red>"
+  enter: "<gold>已进入实体 21 点赌场。</gold> <gray>可右键快捷栏或座位旁的十个按钮操作。</gray>"
+  hand:
+    betting-open: "<green><bold>第 {hand} 手开始下注。</bold></green> <gray>用加注/减注调整，再按确认下注；{seconds} 秒内未确认按当前金额自动下注。</gray>"
+    blackjack: "<gold><bold>黑杰克</bold></gold>"
+    bust: "<red><bold>爆牌 {total}</bold></red>"
+    dealt-header: "<gray>—— 发牌完成 ——</gray>"
+    hard: "<white>硬 {total}</white>"
+    line: "<white>{player}</white> {hand}"
+    no-bets: "<yellow>本手无人下注，直接进入下一手。</yellow>"
+    none: "<gray>无牌</gray>"
+    soft: "<aqua>软 {total}</aqua>"
+  history:
+    empty: "<gray>目前没有 21 点历史记录。</gray>"
+    entry-lost: "<red>[负]</red> <white>{time}</white> <gray>· {players} · 总下注 {wagered} · {reason}</gray>"
+    entry-won: "<green>[胜]</green> <white>{time}</white> <gray>· {players} · 总下注 {wagered} · {reason}</gray>"
+    header: "<gold><bold>—— 最近 21 点记录 ——</bold></gold>"
+    none-for-you: "<gray>目前没有属于你的 21 点记录。</gray>"
+    player-separator: "、"
+    reason:
+      dealer-bust: "荷官 {total} 爆牌"
+      dealer-total: "荷官 {total}"
+      default: "结算"
+      hand: "第 {hand} 手：{reason}"
+  hit:
+    bust: "<red><bold>爆牌，本手输掉 {amount}。</bold></red>"
+    dealt: "<aqua>要牌：</aqua>{card} <gray>→ {hand}</gray>"
+    not-allowed: "<red>这手牌不能再要牌。</red>"
+    twenty-one: "<gold>已到 21 点，自动停牌。</gold>"
+  hologram:
+    bet: "<gold><bold>下注 {amount}</bold></gold>"
+    bet-confirmed: "<gold><bold>下注 {amount}</bold></gold> <green>已确认</green>"
+    bet-pending: "<gold><bold>下注 {amount}</bold></gold> <yellow>待确认</yellow>"
+    countdown: "<gray>{seconds} 秒</gray>"
+    doubled: " <yellow>双倍</yellow>"
+    hand-empty: "<gray>空位</gray>"
+    hand-index: "<gray>第 {index} 手 </gray>"
+    insurance: "<dark_aqua>保险 {amount}</dark_aqua>"
+    place-chips: "<gray>把筹码放进下注区</gray>"
+    seat-acting: " <green><bold>◀ 行动</bold></green>"
+    seat-chips: "<yellow>筹码 {chips}</yellow>  <gold>下注 {bet}</gold>"
+    seat-empty: "<gray><bold>空位</bold></gray>"
+    seat-insurance: "  <dark_aqua>保险 {amount}</dark_aqua>"
+    seat-leaving: "<gray>本手后离桌</gray>"
+    seat-name: "<white><bold>{player}</bold></white>"
+    seat-open: "<gray><bold>空位</bold></gray>\n<white>可从房间列表中途加入</white>"
+    sitting-out: "<gray>本手未参与</gray>"
+    title: "<gold><bold>{brand} 21 点 · 第 {hand} 手</bold></gold>"
+    total-wagered: "<gold><bold>本手总下注 {amount}</bold></gold>"
+    turn-timer:
+      normal: "<white>{player}</white> <green><bold>{seconds} 秒</bold></green>"
+      urgent: "<white>{player}</white> <red><bold>{seconds} 秒</bold></red>"
+      warning: "<white>{player}</white> <gold><bold>{seconds} 秒</bold></gold>"
+    waiting-deal: "<gray>等待发牌</gray>"
+  insurance:
+    already: "<yellow>本手已经决定过保险。</yellow>"
+    bought: "<dark_aqua>已购买保险 {amount}。</dark_aqua>"
+    closed: "<gray>保险询问结束。</gray>"
+    hit: "<green>保险命中，赔付 2:1。</green>"
+    miss: "<gray>荷官不是黑杰克，保险作废。</gray>"
+    not-now: "<red>现在不能购买保险。</red>"
+    offer: "<dark_aqua><bold>荷官明牌是 A，可以购买保险。</bold></dark_aqua> <gray>保险为本手注额的一半，荷官黑杰克时赔 2:1。</gray>"
+    too-poor: "<red>筹码不足以购买保险（需要 {cost}）。</red>"
+  item:
+    bet-confirm:
+      lore: "<gray>右键确认下注区里的筹码</gray>"
+      name: "<green><bold>确认下注</bold></green>"
+    bet-min:
+      lore: "<gray>右键直接补足最低下注 {min}</gray>"
+      name: "<yellow><bold>一键最低注</bold></yellow>"
+      note: "<dark_gray>补齐后仍需按确认下注</dark_gray>"
+    bet-reclaim:
+      lore: "<gray>把下注区里尚未确认的筹码收回背包</gray>"
+      name: "<red><bold>收回筹码</bold></red>"
+    betting-only: "<dark_gray>仅下注阶段可用</dark_gray>"
+    hit:
+      name: "<aqua><bold>要牌</bold></aqua>"
+    stand:
+      name: "<gold><bold>停牌</bold></gold>"
+  join:
+    announce: "<green>{player} 加入了牌桌（{count}/{max}）。</green>"
+    announce-waiting: "<green>{player} 加入了牌桌（{count}/{max}）。</green> <gray>本手旁观，从下一手开始下注。</gray>"
+    arena-failed: "<red>进入赌场失败，买入金额已退回。</red>"
+    busy: "<red>你已经在其他房间或游戏中。</red>"
+    charge-failed: "<red>买入扣款失败，没有加入牌桌。</red>"
+    full: "<red>该 21 点房间已满（最多 {max} 人）。</red>"
+    min-buyin: "<red>加入本桌至少需要 <yellow>{amount}</yellow> 真实游戏币。</red>"
+  leave:
+    broke: "<red>筹码不足最低下注且钱包余额不够，已自动离桌。</red>"
+    left: "<gray>已离开 21 点赌场。</gray>"
+    mid-hand: "<yellow>{player} 离桌，本手已投入的注额留在牌桌结算。</yellow>"
+    scheduled-done: "<green>已按预约自动离桌。</green>"
+    scheduled-off: "<green>已取消离桌预约。</green>"
+    scheduled-on: "<yellow>已预约本手结束后离桌。</yellow>"
+  outcome:
+    blackjack: "<gold>黑杰克，赢 {amount}</gold>"
+    bust: "<red>爆牌，输 {amount}</red>"
+    dealer-blackjack: "<red>荷官黑杰克，输 {amount}</red>"
+    dealer-bust: "<green>荷官爆牌，赢 {amount}</green>"
+    lose: "<red>点数落后，输 {amount}</red>"
+    push: "<yellow>平局退注</yellow>"
+    push-blackjack: "<yellow>双方黑杰克，平局退注</yellow>"
+    win: "<green>点数领先，赢 {amount}</green>"
+  phase:
+    actions: "<aqua>玩家行动</aqua>"
+    betting: "<aqua>下注中</aqua>"
+    dealer: "<aqua>荷官行动</aqua>"
+    insurance: "<aqua>保险询问</aqua>"
+    settled: "<aqua>结算</aqua>"
+  room:
+    description: "21 点 · 第 {hand} 手，随时可入座"
+  seat:
+    empty-name: "空位"
+  session:
+    ended: "<gold><bold>21 点牌桌结束</bold></gold> <gray>（{reason}）</gray>"
+    paid: "<green>21 点真实游戏币已结算：</green><yellow>{amount}</yellow>。"
+    pending: "<red>21 点结算暂未入账，已挂账自动重试。</red>"
+    reason:
+      all-left: "所有玩家已经离桌"
+  settle:
+    header: "<gold><bold>第 {hand} 手结算</bold></gold>"
+    insurance-lose: "<white>{player}</white> <gray>保险输 {amount}</gray>"
+    insurance-win: "<white>{player}</white> <dark_aqua>保险赢 {amount}</dark_aqua>"
+    line: "<white>{player}</white> {hand} {outcome}"
+    stack-entry: "{player} {chips}"
+    stack-separator: "｜"
+    stacks: "<yellow>当前筹码：</yellow><white>{stacks}</white>"
+  shoe:
+    reshuffled: "<gray>牌靴已重新洗牌。</gray>"
+  split:
+    aces: "<light_purple><bold>分 A 完成，每手各补一张后自动停牌。</bold></light_purple>"
+    done: "<light_purple><bold>已分牌，两手各下注 {amount}。</bold></light_purple>"
+    not-allowed: "<red>这手牌不能分牌：需要起手两张同点数、手数未达上限且筹码足够。</red>"
+  stand:
+    done: "<gold>停牌：</gold><white>{hand}</white>"
+  start:
+    failed: "<red>21 点启动失败，全部买入已经退回。</red>"
+    min-buyin: "<red>{player} 的游戏币不足最低买入 {amount}。</red>"
+  topup:
+    at-limit: "<yellow>已经达到携带上限 {limit}，无法继续补码。</yellow>"
+    auto: "<green>筹码不足，已自动从钱包补充 {amount}。</green>"
+    done: "<green>已补充 {amount} 筹码。</green>"
+    failed: "<red>补码扣款失败。</red>"
+    no-balance: "<red>钱包余额不足，无法补码。</red>"
+  turn:
+    dealer-upcard: "<gold>荷官明牌 </gold>{card} <gray>({value})</gray>"
+    not-yours: "<red>还没轮到你行动。</red>"
+    option:
+      double: "双倍"
+      hit: "要牌"
+      split: "分牌"
+      stand: "停牌"
+    option-separator: " / "
+    prompt: "<green><bold>轮到你行动。</bold></green> <white>{hand}</white> <gray>可选：{options}。</gray>"
+    timeout: "<red>超时未操作，已自动停牌。</red>"
+economy:
+  bet:
+    out-of-range: "<red>赌注必须在 <yellow>{min}</yellow> 至 <yellow>{max}</yellow> 之间。"
+  escrow:
+    failed: "<red>扣款失败，对局未开始；已扣金额全部退回。"
+    insufficient: "<red>{player} 的余额不足，需要 <yellow>{amount}</yellow>；对局未开始。"
+flight:
+  actionbar:
+    line: "<bold>{side}</bold> <white>· ID {player}</white> <dark_gray>|</dark_gray> <aqua>点数：{points}</aqua> <dark_gray>|</dark_gray> <yellow>剩余 {seconds} 秒</yellow>"
+    points:
+      moving: "{symbol} {value}（棋子逐格移动中）"
+      rolling: "{symbol} {value}（摇骰中）"
+      value: "{symbol} {value}"
+      waiting: "等待掷骰"
+  arena:
+    welcome: "<gray>你已进入实体飞行棋场地并自动开启飞行；可升空观察棋盘。右键快捷栏骰子按钮远程掷骰，再右键棋子 1～{pieces} 按钮移动对应的羊；基地按钮和实体羊也仍可使用。</gray>"
+  board:
+    actor: "<bold>{side}</bold> <white>· ID {player} 正在操作</white>　{time}"
+    dice:
+      points: "{symbol}　点数 {value}"
+      rolling: "<yellow><bold>{points}</bold></yellow>"
+      settled: "<aqua><bold>{points}</bold></aqua>"
+      waiting: "等待掷骰"
+    initial: "<white><bold>等待掷骰</bold></white>"
+    piece-name: "{side} <white>· ID {player} · 棋子 {index}</white>"
+    player:
+      active: "{side} <white>· ID {player}</white> <gray>· 进入终点 </gray><green>{finished}/{total}</green>"
+      eliminated: "{side} <white>· ID {player}</white> <red>· 已淘汰</red>"
+    seat-label: "<bold>{side}</bold> <white>· ID {player}</white>\n<gray>右键下方按钮掷骰</gray>"
+    seconds:
+      normal: "<green><bold>{seconds} 秒</bold></green>"
+      urgent: "<red><bold>{seconds} 秒</bold></red>"
+      warning: "<gold><bold>{seconds} 秒</bold></gold>"
+    start-label: "<bold>★ {side}起点 ★</bold>"
+    title: "<gold><bold>{brand} 飞行棋</bold></gold>"
+  capture:
+    actor: "<gold>共撞回了 {count} 枚棋子！"
+    victim: "<red>你的 {count} 枚棋子被 {player} 撞回基地。"
+  color:
+    blue: "<blue>蓝方</blue>"
+    green: "<green>绿方</green>"
+    red: "<red>红方</red>"
+    yellow: "<yellow>黄方</yellow>"
+  draw:
+    already-requested: "<yellow>你已经申请过平局，正在等待其他房内玩家同意。"
+    broadcast: "<gold><bold>飞行棋最终结果：</bold></gold><yellow>平局</yellow> <gray>（{reason}）</gray>"
+    mutual-broadcast: "<gold><bold>飞行棋最终结果：</bold></gold><yellow>全员同意平局</yellow> <gray>（每人扣 5% 手续费）</gray>"
+    mutual-refunded: "<yellow>飞行棋协商平局；已退回 {amount}，并扣除原赌注 5% 手续费。</yellow>"
+    refunded: "<yellow>飞行棋以平局结束，每人赌注已退回。<gray>（{reason}）</gray>"
+    requested: "<yellow>ID {player} 申请平局：</yellow><white>{votes}/{required} 已同意</white>。 <gray>其余玩家输入 /casino draw；全员同意后各扣 5% 手续费。</gray>"
+    spectator: "<red>观战者不能申请或同意平局。</red>"
+  eliminate:
+    broadcast: "<red>{player} 已淘汰。</red> <gray>（{reason}）</gray>"
+    self: "<red>你已从飞行棋淘汰。</red> <gray>（{reason}）</gray>"
+  error:
+    already-rolled: "<yellow>已经掷出 {value}，请选择一枚棋子。"
+    busy: "<red>你已经在其他房间或游戏中。</red>"
+    dice-rolling: "<yellow>骰子正在滚动……"
+    need-six: "<red>基地里的棋子只有掷到 6 才能起飞。"
+    no-path: "<red>无法生成棋子移动路径，请重新选择。</red>"
+    not-your-piece: "<red>只能移动自己颜色的羊棋子。"
+    not-your-turn: "<red>现在是 {player} 的回合。"
+    piece-finished: "<red>这枚棋子已经到达终点，请换一枚棋子。"
+    piece-out-of-range: "<red>本房间每人只有 {pieces} 枚棋子。"
+    pieces-moving: "<yellow>棋子正在逐格移动，请稍候。</yellow>"
+    roll-first: "<red>请先右键快捷栏的远程骰子按钮。"
+    wait-dice: "<yellow>请等待骰子停下。"
+    wrong-button: "<red>这不是你颜色基地的骰子按钮。"
+  finish:
+    broadcast: "<gold>{player} 的 {pieces} 枚棋子全部到达终点，获得第 {rank} 名！</gold>"
+    self: "<gold><bold>{pieces} 枚棋子全部到达终点，你获得第 {rank} 名！</bold></gold><gray> 已转为观战模式，后续回合会跳过你。</gray>"
+  game:
+    start:
+      - "<green>飞行棋开始！</green> <gray>玩家：</gray><white>{players}</white><gray>，每人赌注 </gray><yellow>{wager}</yellow>。"
+      - "<gray>快捷栏 1 是远程骰子，快捷栏 2～{slots} 对应棋子 1～{pieces}；手持后右键即可操作。也可以直接使用基地按钮和羊。</gray>"
+      - "<gray>每位玩家每回合有 <white>{seconds} 秒</white>，超时直接判负。</gray>"
+  item:
+    piece:
+      lore-1: "<white>掷骰结束后手持右键"
+      lore-2: "<gray>移动对应编号的羊棋子"
+      name: "<bold>{side} · 棋子 {index}</bold>"
+    roll:
+      lore-1: "<white>轮到你时手持右键即可摇骰子"
+      lore-2: "<gray>无需飞回基地按钮"
+      name: "{color}<bold>远程掷骰</bold>"
+  move:
+    bounce: "{side} <white>· ID {player}</white> 超出终点 <yellow>{excess} 格</yellow>，反弹到终点航道第 <aqua>{cell} 格</aqua>；下回合仍可继续向终点前进。"
+    launch: "{side} <white>· ID {player}</white> 的棋子起飞到起点 <gray>（掷到 6 不额外前进 6 格）</gray>。"
+  reason:
+    all-ranks-decided: "全部有效名次已经产生"
+    disconnect: "掉线，直接判负"
+    forfeit: "主动认输"
+    mutual-draw: "房内所有玩家同意平局"
+    offline-move: "棋子移动期间离线"
+    offline-roll: "掷骰期间离线"
+    offline-shortcut: "快捷飞跃期间离线"
+    quit: "中途退出"
+    time-limit: "达到最长对局时间"
+    turn-timeout: "{player} 回合超时"
+  result:
+    entry:
+      first: "<gold>第 {rank} 名 {player}</gold>"
+      other: "<gray>第 {rank} 名 {player}</gray>"
+      second: "<aqua>第 {rank} 名 {player}</aqua>"
+      third: "<yellow>第 {rank} 名 {player}</yellow>"
+    header: "<gold><bold>飞行棋最终结果：</bold></gold>"
+    payout: "<gold>飞行棋最终名次：第 <white>{rank}</white> 名；获得总奖金池的 <white>{percent}</white>，到账 <yellow>{amount}</yellow>。</gold>"
+    reason: " <gray>（{reason}）</gray>"
+    separator: " <dark_gray>|</dark_gray> "
+  roll:
+    extra-turn: "<green>掷到 6，再获得一次机会。"
+    no-moves: "<gray>没有可移动的棋子，回合结束。"
+    result: "{side} <white>· ID {player}</white> 掷出了 <aqua><bold>{value}</bold></aqua>。"
+    subtitle-result: "{side} <white>· ID {player}</white> <gray>· 摇到 {value} 点</gray>"
+    subtitle-rolling: "{side} <white>· ID {player}</white> <gray>· 摇骰中</gray>"
+    three-sixes: "<red>连续三次掷到 6，本回合跳过。"
+    title: "{color}<bold>{symbol}　{value}</bold>"
+  room:
+    status: "进行中 · {count} 名参赛者 · 可飞行观战"
+  roster-separator: "、"
+  round:
+    subtitle: "{side} <white>· ID {player} 正在操作</white>"
+    title: "<gold><bold>第 {round} 轮开始！</bold></gold>"
+  shortcut:
+    lane: "{side} <white>· ID {player}</white> 进入中央飞跃航线，<gold><bold>速通 12 格</bold></gold>！"
+    same-colour: "{side} <white>· ID {player}</white> 落在同色格，<aqua><bold>跳跃 4 格</bold></aqua>！"
+  shutdown:
+    refunded: "<yellow>服务器关闭，飞行棋赌注已退回。"
+  spectate:
+    active: "<aqua>你正在观战飞行棋。</aqua> <gray>可自由飞行；输入 /casino leave 退出。</gray>"
+    joined-arena: "<aqua>已加入飞行棋观战。</aqua> <gray>你可以自由飞行查看棋盘，但不能掷骰或移动棋子；输入 <white>/casino leave</white> 退出观战。</gray>"
+    joined-game: "<aqua>已进入飞行棋观战。</aqua> <gray>你可以自由飞行观察棋盘，并会实时看到操作者、倒计时、掷骰动画与最终点数；不能操作骰子或棋子。</gray>"
+    left: "<gray>已退出飞行棋观战。</gray>"
+    turn: "<aqua>观战：</aqua>{side} <white>· ID {player}</white><gray> 正在操作。</gray>"
+  status:
+    current-turn: "<gray>当前回合：</gray>{side} <white>· ID {player}</white>。 <gray>使用快捷栏远程骰子和四个棋子按钮操作，也可直接点击棋盘实体。</gray>"
+  turn:
+    subtitle: "<white>请在 {seconds} 秒内掷骰并移动棋子</white>"
+    title: "{color}<bold>轮到你了！</bold>"
+    waiting: "<gray>等待 {player} 行动……"
+    yours: "<green>轮到你了，右键快捷栏的远程骰子按钮掷骰。"
+game:
+  blackjack:
+    display: "21 点"
+  draw:
+    not-in-game: "<red>你当前不在进行中的小游戏房间内。"
+  flight:
+    display: "飞行棋"
+  forfeit:
+    not-in-game: "<red>你当前不在小游戏中。"
+  poker:
+    display: "德州扑克"
+  start:
+    busy: "<red>你或对方已经在一场小游戏中。"
+    failed:
+      real: "<red>赌场牌局启动失败，真实游戏币买入已退回。"
+      wager: "<red>对局启动失败，赌注已退回。"
+    player-count: "<red>{game} 需要 {minimum}～{maximum} 人。"
+invites:
+  already-member: "<red>该玩家已经在你的房间里。"
+  busy: "<red>你或对方已经在游戏或房间中。"
+  button:
+    accept: "<green>[接受]</green>"
+    accept-hover: "<green>点击接受邀请"
+    deny: " <red>[拒绝]</red>"
+    deny-hover: "<red>点击拒绝邀请"
+  cancel:
+    done: "<yellow>已撤回全部待处理邀请。"
+    none: "<red>你没有待处理的邀请。"
+    target: "<gray>{player} 撤回了小游戏邀请。"
+  denied:
+    self: "<yellow>已拒绝 {player} 的邀请。"
+    sender: "<red>{player} 拒绝了你的邀请。"
+  not-found: "<red>没有找到这条有效邀请。"
+  received:
+    real: "<yellow>{player}</yellow> 邀请你玩 <white>{game}</white>，使用 Vault 真实游戏币买入，不另收固定赌注。<gray>（接受后加入房间）</gray> "
+    wager: "<yellow>{player}</yellow> 邀请你玩 <white>{game}</white>，赌注 <yellow>{amount}</yellow>。<gray>（接受后加入房间）</gray> "
+  self: "<red>不能邀请自己。"
+  sender-offline: "<red>邀请者已经离线。"
+  sent:
+    real: "<green>已邀请 <yellow>{player}</yellow> 加入{game}房间；桌上直接使用 Vault 真实游戏币，不另收固定赌注。"
+    wager: "<green>已邀请 <yellow>{player}</yellow> 加入 {game} 房间，赌注 <yellow>{amount}</yellow>；接受后由房主开局。"
+lobby:
+  active-room:
+    spectate: "加入观战"
+    take-seat: "下手入座"
+  bet:
+    changed: "<gold>房主把每人赌注改为 <white>{amount}</white>；旧邀请已作废，请重新邀请尚未进房的玩家。"
+    not-host: "<red>只有房主可以修改当前房间的赌注。"
+    real-currency: "<red>德州和炸金花不使用固定赌注；桌上筹码就是 Vault 真实游戏币。"
+  blinds:
+    changed: "<gold>房主把盲注改为 <white>{small}/{big}</white>。"
+    invalid: "<red>牌桌参数必须满足：1 ≤ 第一参数 ≤ 10000，且第一参数 < 第二参数 ≤ min({maximum}，第一参数×200)。</red>"
+    not-host: "<red>只有房主可以设置牌桌参数。"
+    preference: "<green>赌场参数偏好已设为 <white>{small}/{big}</white>，下次创建德州或 21 点房间时使用。"
+  buyin:
+    changed: "<gold>房主把每人携带金币上限改为 <white>{buyin}</white>。"
+    not-host: "<red>只有房主可以设置携带金币上限。"
+    out-of-range: "<red>携带金币上限必须在大盲 {minimum} 至 {maximum} 之间。"
+    preference: "<green>赌场携带金币上限偏好已设为 <white>{buyin}</white>。"
+  create:
+    already-in-room: "<red>你已经在一个小游戏房间中；先用 <yellow>/casino leave</yellow> 离开。"
+    done:
+      real: "<green>已创建{game}房间，人数 1/{maximum}；使用 Vault 真实游戏币买入，不另收固定赌注。"
+      wager: "<green>已创建 {game} 房间，人数 1/{maximum}，赌注 <yellow>{amount}</yellow>。"
+    hint:
+      real: "<gray>赌场可由房主一人直接输入 <yellow>/casino start</yellow>；空位会由 BOT 补满六席。</gray>"
+      wager: "<gray>继续邀请玩家，至少 2 人后输入 <yellow>/casino start</yellow> 开始。</gray>"
+    in-game: "<red>你正在游戏中，不能创建房间。"
+    pieces: "<gray>当前每人 <white>{pieces} 枚棋子</white>；房主可用 <yellow>/casino pieces 2|3|4</yellow> 修改。"
+    stakes:
+      blackjack: "<gray>当前底注/加注参数 <white>{small}/{big}</white>，携带上限 <white>{buyin}</white>；房主可用 <yellow>/casino blinds</yellow>、<yellow>/casino buyin</yellow> 修改。赌场模板：<white>{decor}</white>，可用 <yellow>/casino casino 1|2|3</yellow> 切换。</gray>"
+      poker: "<gray>当前盲注 <white>{small}/{big}</white>，携带上限 <white>{buyin}</white>；房主可用 <yellow>/casino blinds</yellow>、<yellow>/casino buyin</yellow> 修改。赌场模板：<white>{decor}</white>，可用 <yellow>/casino casino 1|2|3</yellow> 切换。</gray>"
+  decor:
+    changed: "<gold>房主把赌场模板切换为 <white>{id} · {name}</white>。</gold> <gray>{description}</gray>"
+    invalid: "<red>赌场模板只能选择 1、2 或 3。</red>"
+    not-host: "<red>只有房主可以切换赌场模板。</red>"
+    preference: "<green>赌场模板偏好已设为 <white>{id} · {name}</white>；下次创建德州或 21 点房间时使用。</green>"
+  disbanded: "<yellow>房主解散了房间。"
+  full: "<red>房间已满（最多 {maximum} 人）。"
+  host-quit: "<yellow>房主离线，房间已解散。"
+  host-start-hint: "<yellow>人数足够时输入 /casino start 开局。</yellow>"
+  invite:
+    mismatch:
+      real: "<red>现有房间是 {game}，使用真实游戏币；先用 <yellow>/casino leave</yellow> 解散后再改。"
+      wager: "<red>现有房间是 {game}，赌注 {amount}；先用 <yellow>/casino leave</yellow> 解散后再改。"
+  join:
+    busy: "<red>你已经在其他房间或游戏中。"
+    gone: "<red>该房间已经不存在。"
+    unavailable: "<red>该房间已经不存在、不可观战，或德州牌桌已经满员。</red>"
+  joined: "<green>{player} 加入了房间。</green> <gray>当前 {size}/{maximum} 人。</gray>"
+  leave:
+    not-in-room: "<red>你当前不在房间中。"
+  left: "<yellow>{player} 离开了房间。</yellow> <gray>当前 {size}/{maximum} 人。</gray>"
+  member-quit: "<yellow>{player} 离线并离开了房间。"
+  not-casino-room: "<red>当前房间不是德州或炸金花。</red>"
+  not-flight-room: "<red>当前房间不是飞行棋。"
+  pieces:
+    changed: "<gold>房主把飞行棋改为每人 <white>{pieces} 枚棋子</white>。"
+    not-host: "<red>只有房主可以设置棋子数。"
+    preference: "<green>飞行棋棋子数偏好已设为每人 <white>{pieces} 枚</white>。"
+  shape:
+    changed: "<green>赌场轮廓已设为 <white>{name}</white>。</green> <gray>{description}；从下一次开桌起生效。</gray>"
+    invalid: "<red>没有这种赌场轮廓。</red>"
+  start:
+    member-offline: "<red>有房间成员已经离线，请等待系统移除或重新建房。"
+    not-host: "<red>只有房主可以开始；你当前没有自己创建的房间。"
+    too-few: "<red>至少需要 {minimum} 名玩家才能开始。"
+menu:
+  chat:
+    blackjack:
+      hover: "1～6 人；各自与荷官对赌；要牌/停牌/双倍/分牌/保险；使用真实游戏币"
+      label: "<dark_aqua><bold>[创建 21 点牌桌]</bold></dark_aqua>"
+    blinds:
+      hover: "点击后在命令栏修改数字"
+      label: "<gold>[设置赌场参数：{small}/{big}]</gold>"
+    buyin:
+      hover: "点击后在命令栏修改数字"
+      label: "<gold>[设置赌场携带上限：{limit}]</gold>"
+    decor:
+      hover: "当前 {id} 号装修；点击列出全部 {count} 种"
+      label: "<gold><bold>[赌场装修：{name}]</bold></gold>"
+    decor-1:
+      hover: "绿桌与地面齐平，筹码直接向上堆放"
+      selected: "<green><bold>[✓ 赌场 1：皇家绿毯]</bold></green>"
+      unselected: "<white>[赌场 1：皇家绿毯]</white>"
+    decor-2:
+      hover: "萤石、海晶灯下注区，上覆玻璃"
+      selected: "<green><bold>[✓ 赌场 2：海晶玻璃]</bold></green>"
+      unselected: "<aqua>[赌场 2：海晶玻璃]</aqua>"
+    decor-3:
+      hover: "草木花园与露天牌桌"
+      selected: "<green><bold>[✓ 赌场 3：露天自然]</bold></green>"
+      unselected: "<green>[赌场 3：露天自然]</green>"
+    flight:
+      hover: "2～4 人，当前赌注 {bet}"
+      label: "<aqua><bold>[创建飞行棋房间]</bold></aqua>"
+    footer: "<gray>这只是开局菜单；进入游戏后仍使用标题、全息和场地按钮，不会用背包 GUI 挡住通知栏。</gray>"
+    header: "<gradient:#55ffff:#aa55ff>—— {brand} 小游戏（聊天交互）——</gradient>"
+    invitepanel:
+      hover: "邀请一人后会自动刷新，可继续邀请"
+      label: "<aqua>[打开连续邀请面板]</aqua>"
+    leave:
+      hover: "房主点击会解散房间"
+      label: "<red>[离开/解散房间]</red>"
+    pieces:
+      hover-current: "当前选择"
+      hover-set: "改为每人 {count} 枚棋子"
+      label: "<aqua>[飞行棋 {count} 枚]</aqua>"
+    poker:
+      hover: "2～6 人，使用 Vault 真实游戏币"
+      label: "<gold><bold>[创建德州扑克房间]</bold></gold>"
+    room: "<gray>当前房间：</gray><white>{game}</white> <gray>· {current}/{max} 人 · {rules}</gray>"
+    rooms:
+      hover: "等待房可加入；进行中德州/炸金花可下手入座；飞行棋/迷宫可观战"
+      label: "<aqua><bold>[加入现有房间：{count} 个可加入]</bold></aqua>"
+    start:
+      hover-bots: "可直接开始，BOT 自动补满六席"
+      hover-minimum: "至少两人后由房主开始"
+      label: "<green><bold>[开始房间]</bold></green>"
+    to-gui:
+      hover: "以后 /casino 默认打开 GUI 版"
+      label: "<aqua><bold>[切换到 GUI 菜单]</bold></aqua>"
+    wager:
+      hover: "点击后直接在聊天框输入 1～10000"
+      label: "<yellow><bold>[设置赌注：{bet}]</bold></yellow>"
+  chat-invites:
+    back:
+      hover: "返回小游戏聊天菜单"
+      label: "<yellow>[完成邀请 / 返回]</yellow>"
+    empty: "<gray>当前没有其他可邀请的在线玩家。</gray>"
+    footer: "<gray>可连续点击多个玩家；按 Esc 关闭聊天即可退出显示，不会解散房间。</gray>"
+    header: "<gradient:#55ffff:#aa55ff>—— {game}连续邀请面板 ——</gradient>"
+    invite:
+      hover: "发送邀请后自动刷新本面板"
+      label: "<green>[邀请]</green> <white>{player}</white>"
+    pending: "<dark_gray>[已邀请] {player}（等待回应）</dark_gray>"
+    room: "<gray>房间：</gray><white>{members}</white> <gray>（{current}/{max}）</gray>"
+    separator: "、"
+    start:
+      hover: "由房主开始当前房间"
+      label: "<green><bold>[开始游戏]</bold></green>"
+  chat-rooms:
+    active-join:
+      hover: "当前手旁观，从下一手开始正式参与"
+      label: "<aqua>[中途入座]</aqua> <white>{host}</white> <gray>· {game} · {status}</gray>"
+    active-spectate:
+      hover: "只观战，不占参赛名额或奖金"
+      label: "<aqua>[加入观战]</aqua> <white>{host}</white> <gray>· {game} · {status}</gray>"
+    back:
+      hover: "返回小游戏菜单"
+      label: "<yellow>[返回主菜单]</yellow>"
+    empty: "<gray>当前没有尚未开局且未满员的房间。</gray>"
+    header: "<gradient:#55ffff:#aa55ff>—— 可加入的小游戏房间 ——</gradient>"
+    lobby:
+      hover: "点击直接加入该等待房间"
+      label: "<green>[加入]</green> <white>{host}</white> <gray>· {game} · {current}/{max} · {rules}</gray>"
+  common:
+    back: "<yellow>返回主菜单</yellow>"
+    close: "<red>关闭</red>"
+    to-chat:
+      lore: "<gray>以后 /casino 默认打开聊天点击版</gray>"
+      name: "<yellow>切换到聊天菜单</yellow>"
+  input:
+    bet-invalid: "<red>请输入 1～10000 之间的数字。"
+    bet-prompt: "<yellow>请直接在聊天框输入赌注金额（1～10000），输入“取消”放弃。</yellow>"
+    bet-set: "<green>邀请赌注已设为 <yellow>{bet}</yellow>。"
+    blinds-invalid: "<red>请输入两个整数，例如：<yellow>10 20</yellow>。"
+    blinds-prompt: "<yellow>请输入两个牌桌参数，例如 <white>10 20</white>：德州为小盲/大盲；炸金花为底注 10、加注步长 10。输入“取消”放弃。</yellow>"
+    buyin-invalid: "<red>请输入整数金币上限，例如：<yellow>2000</yellow>。"
+    buyin-prompt: "<yellow>请输入每名玩家的携带金币上限，例如 <white>2000</white>；输入“取消”放弃。</yellow>"
+    cancelled: "<gray>已取消输入。"
+  invite:
+    no-host-room: "<red>请先创建一个由你担任房主的飞行棋、德州、炸金花或迷宫竞速房间。"
+  invites:
+    empty: "<gray>没有可邀请的在线玩家</gray>"
+    invite:
+      lore: "<gray>点击发送邀请并刷新</gray>"
+      name: "<green>邀请 {player}</green>"
+    pending:
+      lore: "<dark_gray>等待回应</dark_gray>"
+      name: "<gray>已邀请 {player}</gray>"
+    refresh: "<aqua>刷新玩家列表</aqua>"
+    start: "<green><bold>开始游戏</bold></green>"
+    title: "<dark_aqua>邀请玩家 · {game}</dark_aqua>"
+  main:
+    blackjack:
+      lore-actions: "<gray>要牌/停牌/双倍/分牌/保险，黑杰克赔 3:2</gray>"
+      lore-currency: "<yellow>使用 Vault 真实游戏币</yellow>"
+      lore-players: "<gray>1～6 人，各自与荷官对赌，一个人也能开</gray>"
+      name: "<dark_aqua><bold>创建 21 点牌桌</bold></dark_aqua>"
+    blinds:
+      lore-current: "<white>德州小/大盲；炸金花底注/参数：</white>{small}/{big}"
+      name: "<gold>设置赌场牌桌参数</gold>"
+    buyin:
+      lore-current: "<white>当前：</white>{limit}"
+      name: "<green>设置赌场携带上限</green>"
+    decor:
+      lore-count: "<dark_gray>共 {count} 种，/casino casino <1～{count}> 可直接选</dark_gray>"
+      lore-description: "<gray>{description}</gray>"
+      lore-next: "<yellow>点击切换到 {id}：{name}</yellow>"
+      name: "<green><bold>✓ 赌场 {id}：{name}</bold></green>"
+    decor-list:
+      lore: "<gray>在聊天框列出全部 {count} 种装修并可点击选择</gray>"
+      name: "<aqua><bold>全部赌场装修</bold></aqua>"
+    flight:
+      lore-players: "<gray>2～4 人</gray>"
+      lore-wager: "<yellow>赌注：</yellow>{bet}"
+      name: "<aqua><bold>创建飞行棋房间</bold></aqua>"
+    history:
+      other: "<light_purple>炸金花历史记录</light_purple>"
+      poker: "<gold>德州历史记录</gold>"
+    invite:
+      lore: "<gray>邀请后面板不会退出</gray>"
+      name: "<aqua>连续邀请玩家</aqua>"
+    leave:
+      lore: "<gray>房主执行会解散房间</gray>"
+      name: "<red>离开/解散房间</red>"
+    pieces:
+      selected: "<green><bold>✓ 飞行棋：{count} 枚棋子</bold></green>"
+      unselected: "<white>飞行棋：{count} 枚棋子</white>"
+    poker:
+      lore-players: "<gray>2～6 人，使用 Vault 真实游戏币</gray>"
+      name: "<gold><bold>创建德州扑克房间</bold></gold>"
+    room:
+      lore-players: "<gray>人数：</gray>{current}/{max}"
+      lore-rules: "<gray>规则：</gray>{rules}"
+      name: "<white>当前房间：{game}</white>"
+    rooms:
+      lore-count: "<white>当前可加入：</white>{count}"
+      lore-what: "<gray>等待房可加入；进行中德州/炸金花可下手入座；飞行棋/迷宫可观战</gray>"
+      name: "<aqua><bold>加入现有房间</bold></aqua>"
+    start:
+      lore-bots: "<gray>可直接开始，BOT 自动补满六席</gray>"
+      lore-minimum: "<gray>至少两人后可开始</gray>"
+      name: "<green><bold>开始房间</bold></green>"
+    title: "<dark_aqua>{brand} 小游戏</dark_aqua>"
+    wager:
+      lore-current: "<white>当前：</white>{bet}"
+      lore-range: "<gray>范围 1～10000</gray>"
+      name: "<yellow>修改飞行棋/迷宫赌注</yellow>"
+  mode:
+    chat: "<green>初始菜单已切换为聊天点击版。</green>"
+    gui: "<green>初始菜单已切换为 GUI 版。</green>"
+  rooms:
+    active:
+      name-join: "<aqua><bold>中途加入 · {host}</bold></aqua>"
+      name-spectate: "<aqua><bold>加入观战 · {host}</bold></aqua>"
+    empty: "<gray>当前没有可加入的房间</gray>"
+    entry:
+      game: "<white>游戏：</white>{game}"
+      players: "<white>人数：</white>{current}/{max}"
+      rules: "<gray>规则：</gray>{rules}"
+      seated: "<white>参赛人数：</white>{count}"
+      status: "<gray>状态：</gray>{status}"
+    lobby:
+      name: "<green><bold>加入 {host} 的房间</bold></green>"
+    refresh: "<aqua>刷新房间列表</aqua>"
+    title: "<dark_aqua>加入现有小游戏房间</dark_aqua>"
+  rules:
+    chat-main:
+      ante: "真实游戏币；底注/参数 {small}/{big}；携带上限 {limit}；赌场 {decor}"
+      blinds: "真实游戏币；盲注 {small}/{big}；携带上限 {limit}；赌场 {decor}"
+      wager: "赌注 {bet}"
+      wager-pieces: "赌注 {bet}；每人 {pieces} 枚棋子"
+    chat-rooms:
+      ante: "底注/参数 {small}/{big}，上限 {limit}，赌场 {decor}"
+      blinds: "盲注 {small}/{big}，上限 {limit}，赌场 {decor}"
+      wager: "赌注 {bet}"
+    main:
+      ante: "底注/参数 {small}/{big}，携带上限 {limit}，赌场 {decor}"
+      blinds: "盲注 {small}/{big}，携带上限 {limit}，赌场 {decor}"
+      wager: "赌注 {bet}"
+      wager-pieces: "赌注 {bet}，每人 {pieces} 枚棋子"
+    rooms:
+      ante: "底注/参数 {small}/{big}，携带上限 {limit}"
+      blinds: "盲注 {small}/{big}，携带上限 {limit}"
+      wager: "赌注 {bet}"
+      wager-pieces: "赌注 {bet}，每人 {pieces} 枚棋子"
+poker:
+  action:
+    all-in: "<red><bold>ALL IN！</bold> 投入 {amount}。"
+    all-in-total: "<red><bold>全下！</bold> 本轮总下注 {amount}。"
+    bet-confirmed: "<green>确认下注 {amount}。"
+    call-filled: "<green>已一键补入 {added}；当前跟注需要 {needed}，待确认共 {pending}。请按“确认下注/过牌”按钮确认。</green>"
+    call-filled-all-in: "<gold>已补入全部剩余筹码 {added}；当前跟注需要 {needed}，待确认共 {pending}，将按 ALL IN 跟注。请按确认按钮。</gold>"
+    called-to: "<green>跟注到 {amount}。"
+    checked: "<green>过牌。"
+    chip-placed-exact: "<yellow>已放入 {value}，待确认下注共 <white>{pending}</white>；当前跟注需要 <aqua>{needed}</aqua>，<green>已达到跟注额</green>。</yellow>"
+    chip-placed-over: "<yellow>已放入 {value}，待确认下注共 <white>{pending}</white>；当前跟注需要 <aqua>{needed}</aqua>，超出跟注额 <gold>{over}</gold>（加注）。</yellow>"
+    chip-placed-short: "<yellow>已放入 {value}，待确认下注共 <white>{pending}</white>；当前跟注需要 <aqua>{needed}</aqua>，还差 <red>{short}</red>。</yellow>"
+    chip-too-large: "<red>可用金币不足：当前还能放入 <yellow>{remaining}</yellow>，这枚筹码价值 <yellow>{value}</yellow>。这不是方块数量限制；可先分解筹码或选择 ALL IN。</red>"
+    folded-broadcast: "<yellow>{player} 已弃牌。</yellow> <gray>（{reason}）</gray>"
+    need-more: "<red>至少还需放入 {amount} 金币才能跟注。"
+    no-chips: "<red>没有可投入的筹码。"
+    no-pending: "<gray>没有待确认筹码。"
+    not-betting-phase: "<yellow>当前不是下注阶段。</yellow>"
+    not-your-turn: "<red>尚未轮到你。"
+    not-your-turn-bet: "<red>还没轮到你，不能下注。"
+    nothing-to-call: "<green>当前无需跟注；请按座位旁的“确认下注/过牌”按钮过牌。</green>"
+    other-seat-button: "<red>这是 {player} 的操作按钮，请使用自己座位旁的按钮。</red>"
+    pending-returned: "<green>待确认筹码已收回并重新合并。"
+    raise-closed: "<red>前方是未达到最小加注的全下，你本轮只能跟注或弃牌。"
+    raise-locked: "<red>本轮加注权未开放，只能跟注或弃牌。"
+    raise-not-reopened: "<red>本轮加注权未重新开放，只能跟注现有下注。"
+    raise-short: "<red>最小加注还差 {amount} 金币；也可以直接 ALL IN。"
+    raise-too-poor: "<red>筹码不足以完成最小加注；可选择全下、跟注或弃牌。"
+    raised-to: "<gold>加注到 {amount}。"
+    wrong-bet-zone: "<red>请把筹码放进你座位前方的专属下注区。"
+  arena:
+    atm:
+      bot-wallet: " <light_purple>BOT资金 无限</light_purple>"
+      header: "<gold><bold>◆ {brand} 皇家金库 ATM ◆</bold></gold>\n<gray>Vault 钱包 / 桌上可用筹码 / 本手下注</gray>\n<green>任意阶段右键绿宝石补充筹码 · 携带上限 {limit}</green>\n<gray>手上 + 本手已下注 + 待下手不得超过上限；进行中补充下手生效</gray>"
+      line: "\n<white>{player}</white>{wallet} <yellow>筹码 {chips}</yellow> <aqua>本手 {hand}</aqua>{queued} <gray>可补 {room}</gray>"
+      loading: "<gold><bold>{brand} 皇家金库 ATM</bold></gold>\n<gray>正在读取账户……</gray>"
+      queued: " <green>待下手 {amount}</green>"
+      wallet: " <green>钱包 {balance}</green>"
+    bet-zone:
+      active: "<yellow><bold>▶▶ {player} 的下注区 ◀◀</bold></yellow>"
+      chips: "\n<gold>当前筹码 {chips}</gold>"
+      empty: "<gray>空闲下注区</gray>"
+      label: "<gray>▼</gray> <white>{player} 下注区</white> <gray>▼</gray>"
+      pending: " <yellow>· 待确认 {pending}</yellow>"
+    board:
+      cards: "<gold><bold>公牌</bold></gold> {cards}"
+      empty: "<gold><bold>公牌</bold></gold> <gray>[ ? ] [ ? ] [ ? ] [ ? ] [ ? ]</gray>"
+      peek-note: "\n<light_purple>（ ）内为尚未发出的公牌，仅你可见</light_purple>"
+    chip:
+      merge-done: "<green>已把可用筹码合成为尽可能高的面额：{summary}，现在共 {pieces} 枚。</green>"
+      merge-overflow: "<red>金币数量超过实体筹码栏容量，无法全部合并显示，请联系管理员调整携带上限。</red>"
+      split-done: "<green>已把 1 个 {from} 等值分解为 {count} 个 {to}。</green>"
+      split-need-chip: "<red>请手持一枚筹码再分解。"
+      split-no-space: "<red>背包没有足够空间容纳分解后的筹码，请先下注或收回整理。"
+      split-smallest: "<gray>这已经是最小面额筹码，不能继续分解。"
+    chip-pile:
+      label: "<yellow><bold>{chip} × {count}</bold></yellow>"
+    control:
+      all-in: "<light_purple><bold>ALL IN</bold></light_purple>"
+      call: "<yellow><bold>补齐跟注</bold></yellow>"
+      confirm: "<green><bold>确认下注/过牌</bold></green>"
+      fold: "<red><bold>弃牌</bold></red>"
+      withdraw: "<aqua><bold>收回筹码</bold></aqua>"
+    dealer:
+      name: "<gold><bold>◆ {brand} 皇家荷官 ◆</bold></gold>"
+    exit:
+      armed: "<red><bold>✓ 本手结束后自动离桌</bold></red>\n<gray>右键按钮可取消</gray>"
+      idle: "<yellow><bold>本手后离桌</bold></yellow>\n<gray>右键下方按钮开启</gray>"
+    hole:
+      empty: "<gray><bold>[ 空位 ]</bold>"
+      left: "<gray><bold>[ 已离桌 ]</bold>"
+      next-hand: "<gray><bold>[ 下手发牌 ]</bold>"
+    item:
+      call:
+        hint: "<gray>右键精确补足当前跟注所需筹码"
+        name: "<yellow><bold>一键补齐跟注"
+        note: "<dark_gray>补齐后仍需确认下注"
+      chip:
+        merge: "<gold>潜行 + 右键空气：全部合并为高面额"
+        name: "<yellow>{chip} <gray>(每块 {value})"
+        place: "<white>放到座位前黑色下注区"
+        smallest: "<dark_gray>最小面额，不能继续分解"
+        split: "<aqua>右键空气：等值分解一枚"
+      confirm:
+        hint: "<gray>右键确认待下注筹码；无需跟注时用于过牌"
+        name: "<green><bold>确认下注 / 过牌"
+      hand:
+        dealt:
+          hint: "<gray>两张底牌合并为一份，仅存在于你的物品栏"
+          name: "<gold><bold>你的手牌：</bold></gold> {first} {second}"
+          note: "<aqua>当前最大牌型请查看座位上方的私人全息</aqua>"
+        none:
+          hint: "<gray>你当前没有有效底牌"
+          name: "<gray><bold>本手不参与</bold></gray>"
+    role:
+      big-blind: "大盲"
+      dealer: "庄"
+      small-blind: "小盲"
+    seat:
+      empty: "<gray><bold>空位</bold></gray>\n<white>可从房间列表中途加入</white>"
+      name: "<white>{player}"
+      status: "<white><bold>{player}</bold> {role}\n{state} <yellow>筹码 {chips}</yellow> <aqua>本轮 {round}</aqua>{pending}\n<gray>胜利 {wins} 局 · 胜率 {winrate}</gray>"
+      status-pending: " <gold>待确认 {pending}</gold>"
+      waiting: "<white><bold>{player}</bold></white>\n<yellow>等待下一手入局</yellow>"
+    state:
+      acting: "<green>行动中"
+      all-in: "<gold>ALL IN"
+      folded: "<red>已弃牌"
+      joining-next: "<yellow>下手加入"
+      waiting: "<gray>等待"
+    strength:
+      current: "<aqua><bold>当前最大：</bold></aqua><white>{hand}</white>"
+      folded: "<red>当前手牌：已弃牌</red>"
+      left: "<gray>已离桌</gray>"
+      sitting-out: "<yellow>本手旁观 · 下一手发牌</yellow>"
+      waiting-player: "<gray>等待玩家入座</gray>"
+    table:
+      acting: "<white>ID {player} 正在操作</white>　{color}<bold>{seconds} 秒</bold>"
+      loading: "<gold><bold>{brand} 德州扑克</bold>\n<gray>正在准备牌局信息……</gray>"
+      message: "<gold><bold>{brand} 德州扑克</bold></gold>\n{headline}\n{detail}\n<gold><bold>总池 {pot}</bold></gold>"
+      pot: "\n<gold><bold>总池 {pot}</bold></gold>"
+      pot-breakdown: " <gray>（底池 {pot} + 待确认 {pending}）</gray>"
+      seat-line: "\n<white>ID {player}</white> <aqua>本轮 {round}</aqua>{pending} <gray>· 总下注 {total}</gray>"
+      seat-pending: " <yellow>+待确认 {pending}</yellow>"
+      settling: "<gray>正在结算</gray>"
+      title: "<gold><bold>{brand} 德州扑克</bold></gold>"
+    welcome: "<gray>你已进入实体德州扑克场地。物品栏只放筹码；跟注、确认、收回、ALL IN、弃牌均使用座位旁的实体按钮。"
+  atm:
+    bought-live: "<green>ATM 兑换成功：</green><yellow>{amount} 筹码</yellow><gray>。按携带上限计算：手上 {stack} + 本手已下注 {committed} + 待下手 {queued} = {total}/{limit}；新筹码将在下一手生效。</gray>"
+    bought-paused: "<green>ATM 兑换成功：</green><yellow>{amount} 筹码</yellow><gray>；现有筹码 {stack}/{limit}，下一手可用。</gray>"
+    broadcast-live: "<gold>{player} 已补充 {amount} 筹码；为保证本手公平，将在下一手生效。</gold>"
+    broadcast-paused: "<gold>{player} 已在 ATM 补充 {amount} 筹码。</gold>"
+    charge-failed: "<red>ATM 扣款失败，没有增加筹码；请稍后重试或离场。</red>"
+    left-table: "<red>你已经离桌，不能继续兑换筹码。</red>"
+    limit-committed: " + 本手已下注 {amount}"
+    limit-queued: " + 待下手 {amount}"
+    limit-reached: "<yellow>你已达到本桌携带上限 {limit}。</yellow> <gray>当前计算：手上 {stack}{committed}{queued}。</gray>"
+    no-balance: "<red>Vault 钱包没有可用于兑换的整数余额。</red> <gray>当前最多还能补 {room} 筹码。</gray>"
+  board:
+    broadcast: "<gold><bold>{title}：</bold></gold><white>{cards}</white>"
+    empty: "暂无"
+    final: "最终公共牌"
+    separator: "　"
+  bot:
+    action:
+      all-in: "ALL IN"
+      call: "跟注"
+      check: "过牌"
+      fold: "弃牌"
+      raise: "加注"
+    decided: "<aqua>{player} 思考完成：</aqua><gray>{action}。</gray>"
+    name:
+      assassin: "冷面杀手"
+      calling-station: "跟注站"
+      hothead: "愣头青"
+      maniac: "狂战士"
+      old-fox: "老狐狸"
+      rock: "稳健派"
+    refill: "<light_purple>{player} 自动补充 {amount} 筹码；BOT 资金不受 Vault 余额限制。</light_purple>"
+    tier:
+      novice: "新手"
+      pro: "高手"
+      regular: "中级"
+  chips:
+    copper: "铜块"
+    diamond: "钻石块"
+    emerald: "绿宝石块"
+    folded-no-sort: "<red>你已经弃牌，不能整理筹码。</red>"
+    gold: "金块"
+    iron: "铁块"
+    item-lore-merge: "<gold>潜行 + 右键空气：全部合并为高面额"
+    item-lore-place: "<white>放到座位前的下注区即可下注"
+    item-lore-smallest: "<dark_gray>最小面额，不能继续分解"
+    item-lore-split: "<aqua>右键空气：等值分解一枚"
+    item-name: "<yellow>{name} <gray>(每块 {value})"
+    merge-done: "<green>已合并为尽可能高的面额：{chips}，现在共 {pieces} 枚。</green>"
+    merge-no-space: "<red>筹码数量超过背包容量，无法全部合并显示。</red>"
+    redstone: "红石块"
+    split-done: "<green>已把 1 个 {from} 等值分解为 {count} 个 {to}。</green>"
+    split-failed: "<red>筹码分解失败，背包已按当前金币重新生成。</red>"
+    split-no-space: "<red>背包空间不足，无法分解。</red>"
+    split-smallest: "<yellow>这是最小面额，无法继续分解。</yellow>"
+    summary-empty: "无"
+    summary-entry: "{name}×{count}"
+    summary-separator: "、"
+  common:
+    name-separator: "、"
+    nobody: "无人"
+  draw:
+    already-voted: "<yellow>你已经申请过平局，正在等待其他房内玩家同意。"
+    broadcast: "<gold><bold>德州扑克最终结果：</bold></gold><yellow>全员同意平局</yellow> <gray>（每人可结算金额扣 5% 手续费）</gray>"
+    paid: "<yellow>德州协商平局；扣除 5% 后已返还真实游戏币：<white>{amount}</white>。</yellow>"
+    pending: "<red>平局返款暂未入账，系统已挂账自动重试。</red>"
+    requested: "<yellow>ID {player} 申请德州平局：</yellow><white>{votes}/{required} 已同意</white>。 <gray>其余房内玩家输入 /casino draw；全员同意后每人的可结算金额扣 5% 手续费。</gray>"
+  error:
+    not-in-game: "<red>你当前不在德州牌局中。</red>"
+  exit:
+    armed: "<yellow>已开启：本手结算并展示 10 秒后自动返还剩余筹码、退出房间。</yellow>"
+    cancelled: "<green>已取消本手结束后自动离桌。</green>"
+  hand:
+    next-started: "<green><bold>第 {hand} 手开始！</bold></green> <gray>庄家：{dealer}，盲注 {small}/{big}。</gray>"
+    start: "<green>德州扑克开始！</green> <gray>玩家：</gray><white>{players}</white><gray>；直接使用 Vault 真实游戏币，不另收固定赌注。</gray>"
+    start-controls: "<gray>物品栏只存放筹码；使用座位旁的实体按钮补齐跟注、确认下注/过牌、收回筹码、ALL IN 或弃牌。手持筹码右键空气分解，潜行右键空气合并为高面额；每次行动限时 {seconds} 秒。</gray>"
+    start-seat: "<gray>本局盲注 <white>{small}/{big}</white>；你是 {role}；已从余额带入 <white>{stack}</white>，房主上限 <white>{limit}</white>。"
+  hand-desc:
+    flush: "同花 {rank} 高"
+    four-of-a-kind: "四条 {rank}"
+    full-house: "葫芦 {rank} 带 {kicker}"
+    high-card: "高牌 {rank}"
+    none: "暂无"
+    pair: "对子 {rank}"
+    straight: "顺子 {rank} 高"
+    straight-flush: "同花顺 {rank} 高"
+    three-of-a-kind: "三条 {rank}"
+    two-pair: "两对 {rank} 和 {kicker}"
+  hand-type:
+    flush: "同花"
+    four-of-a-kind: "四条"
+    full-house: "葫芦"
+    high-card: "高牌"
+    pair: "一对"
+    straight: "顺子"
+    straight-flush: "同花顺"
+    three-of-a-kind: "三条"
+    two-pair: "两对"
+  history:
+    draw-reason: "{reason}（5% 手续费）"
+    empty: "<gray>还没有德州历史记录。"
+    entry: "{result} <gray>{time}</gray> <white>{names}</white> <gray>{reason}</gray>{money}"
+    hand-reason: "第 {hand} 手：{reason}"
+    header: "<gradient:#ffd700:#55ffff>—— 德州扑克记录 ——</gradient>"
+    lost: "<red>负</red>"
+    money: " <yellow>返还 {returned}</yellow> <gray>净 {net}</gray>"
+    summary: "<gray>总局数 <white>{games}</white>　胜利 <white>{wins}</white>　胜率 <white>{rate}</white>"
+    won: "<green>胜</green>"
+  join:
+    arena-failed: "<red>进入赌场失败，买入金额已退回。</red>"
+    bought-live: "<gold>已买入 {amount} 筹码。</gold> <gray>本手仅旁观；筹码已锁定到下一手生效。</gray>"
+    bought-paused: "<gold>已买入 {amount} 筹码。</gold> <gray>本手仅旁观；下一手开始时正式入局。</gray>"
+    broadcast: "<green>{player} 中途加入了牌桌（{count}/{max}）。</green> <gray>本手仅旁观，从下一手开始发牌。</gray>"
+    broadcast-replaced: "<green>{player} 中途加入了牌桌（{count}/{max}）。</green> <gray>顶掉了 {bot}。</gray> <gray>本手仅旁观，从下一手开始发牌。</gray>"
+    busy: "<red>你已经在其他房间或游戏中。</red>"
+    charge-failed: "<red>买入扣款失败，没有加入牌桌。</red>"
+    ended: "<red>该德州房间已经结束。</red>"
+    full: "<red>该德州房间已满（最多 {max} 人）。</red>"
+    min-buyin: "<red>加入本桌至少需要 <yellow>{minimum}</yellow> 真实游戏币；当前房主携带上限为 {limit}。</red>"
+  leave:
+    all-in-kept: "<yellow>{player} 已离桌；其 ALL IN 手牌保留到结算。</yellow>"
+    auto-paid: "<green>已按预约自动离桌，返还真实游戏币：</green><yellow>{amount}</yellow>。"
+    auto-pending: "<red>自动离桌返款暂未入账，已挂账自动重试：</red><yellow>{amount}</yellow>。"
+    busted: "<red>你的桌上筹码已经用完，已自动离桌。</red>"
+    paid: "<green>离桌成功，桌上未投入底池的真实游戏币已返还：</green><yellow>{amount}</yellow>。"
+    pending: "<red>离桌返款暂未入账，已挂账自动重试：</red><yellow>{amount}</yellow>。"
+  reason:
+    all-left-table: "所有真人玩家已经离桌"
+    bot-fold: "BOT 策略弃牌"
+    bot-yield: "为新加入的真人玩家让座"
+    disconnected: "掉线，直接判负"
+    everyone-folded: "其余玩家均已弃牌"
+    fold: "主动弃牌"
+    forfeit: "主动弃牌并离桌"
+    leave-after-hand: "本手结算后主动离桌"
+    mutual-draw: "房内所有玩家同意平局"
+    no-humans-left: "真人玩家已经全部离桌"
+    quit: "中途退出"
+    showdown: "摊牌结算"
+    timeout: "{player} 行动超时"
+  reveal:
+    all-in-broadcast: "<gold><bold>所有可行动玩家均已 ALL IN！</bold></gold> <gray>翻牌三张将每隔 2 秒逐张揭示，转牌与河牌每隔 5 秒揭示。</gray>"
+    all-in-subtitle: "<white>{seconds} 秒后：{next}</white>"
+    all-in-title: "<gold><bold>ALL IN 开牌</bold></gold>"
+    flop-subtitle: "<white>第 {index} 张翻牌将在 {seconds} 秒后亮出</white>"
+    flop-title: "<gold><bold>逐张翻牌</bold></gold>"
+    next-flop: "第 {index} 张翻牌"
+    next-river: "河牌"
+    next-showdown: "最终摊牌"
+    next-turn: "转牌"
+  role:
+    big-blind: "大盲"
+    dealer: "庄家"
+    none: "普通位置"
+    small-blind: "小盲"
+  room:
+    detail: "盲注 {small}/{big}，携带上限 {limit}，BOT 自动补满六席"
+  seat:
+    empty: "空位"
+  session:
+    broadcast-result: "<gold><bold>德州扑克最终结果：</bold></gold><green>{winners} 获胜</green> <gray>（{reason}）</gray>"
+    paid: "<green>德州真实游戏币已结算到账：</green><yellow>{amount}</yellow>。"
+    pending: "<red>德州结算暂未入账，系统已挂账并会自动重试：</red><yellow>{amount}</yellow>。"
+    shutdown-refund: "<yellow>服务器关闭，本局真实游戏币买入已全额退回。"
+    you-lost: "<red>德州扑克落败。<gray>（{reason}）</gray>"
+    you-won: "<green>德州扑克获胜！</green><gray>（{reason}）</gray>"
+    you-won-shared: "<green>德州扑克本局获胜者之一！</green><gray>（{reason}）</gray>"
+  settle:
+    broadcast-next: "<gray>红石灯保持亮起；10 秒后如仍有至少两人留桌，将自动开始下一手。离桌请输入 <white>/casino leave</white>。</gray>"
+    broadcast-rake: "<red><bold>赌场抽水：</bold></red><white>{rake}</white> <gray>（{percent}%）</gray>"
+    broadcast-result: "<gold><bold>第 {hand} 手结算：</bold></gold><green>{winners} 获胜</green> <gray>（{reason}）</gray>"
+    broadcast-stacks: "<aqua><bold>当前筹码：</bold></aqua><white>{stacks}</white>　<gold><bold>牌桌总资产：{total}</bold></gold>"
+    broadcast-winnings: "<yellow><bold>胜者收益：</bold></yellow><white>{winnings}</white>"
+    busted: "<red>你的筹码已经输光。</red> <gray>可直接 /casino leave 离场，或在 10 秒内右键皇家金库 ATM 的绿宝石，从 Vault 余额续买。</gray>"
+    center-subtitle: "<green>赢家：{winners}</green>\n<yellow>{winnings}</yellow>\n<red>赌场抽水：{rake}（{percent}%）</red>\n<aqua>当前筹码：{stacks}</aqua>\n<gold>牌桌总资产：{total}</gold>\n<white>10 秒后自动开始下一手</white>"
+    center-title: "<gold><bold>第 {hand} 手结束</bold></gold>"
+    no-winner: "无人获利"
+    rebuy-applied: "<green>提前兑换的 <yellow>{amount}</yellow> 筹码现已加入牌桌，可用于下一手。</green>"
+    rebuy-locked: "<green>你提前兑换的 <yellow>{amount}</yellow> 筹码已经锁定，将在下一手开始前生效。</green>"
+    stack-entry: "{player} {stack}"
+    stack-none: "无"
+    stack-separator: "｜"
+    winner-line: "{player} 赢得 {amount}（净收益 {net}）"
+    winner-separator: "；"
+  showdown:
+    reveal: "<gray>摊牌：</gray><white>{player} {cards}（{hand}）</white>"
+  split:
+    hold-chip: "<red>请先把要分解的筹码拿在主手，再输入 /casino split。</red>"
+  start:
+    big-blind-too-large: "<red>大盲不能超过小盲的 200 倍，牌局未开始。</red>"
+    charge-failed: "<red>真实游戏币买入扣款失败，牌局未开始；已扣金额已退回。"
+    failed: "<red>牌局启动失败，已退回全部真实游戏币买入。"
+    insufficient-balance: "<red>{player} 的真实游戏币不足最低买入 <yellow>{minimum}</yellow>，无法保证开局筹码每种至少 5 个。"
+  status:
+    controls: "<gray>德州物品栏只放实体筹码；座位旁的五个按钮分别用于补齐跟注、确认下注/过牌、收回待确认筹码、ALL IN 和弃牌；筹码右键空气分解，潜行右键空气合并。不会打开箱子式 GUI。</gray>"
+    folded: "<gray>你已经弃牌，正在旁观本局。"
+    hand-paused: "<yellow>本手已经结算，10 秒展示结束后自动开始下一手；如要离桌请使用 <white>/casino leave</white>。</yellow>"
+    hand-paused-short: "<yellow>本手正在展示结算结果，请稍候或用 /casino leave 离桌。</yellow>"
+    revealing: "<gold>正在逐张揭示公牌：翻牌三张每张间隔 2 秒，转牌和河牌间隔 5 秒。</gold>"
+    revealing-short: "<yellow>正在逐张揭示公牌，暂不能行动。</yellow>"
+    waiting: "<gray>当前等待 {player} 行动。</gray>"
+    your-turn: "<green>当前轮到你行动。</green>"
+  street:
+    flop: "翻牌"
+    preflop: "翻牌前"
+    river: "河牌"
+    turn: "转牌"
+  turn:
+    title-waiting: "<gray>等待 <white>{player}</white> 下注</gray>"
+    title-yours: "<yellow>轮到你下注 / 操作</yellow>"
+    waiting: "<gray>等待 {player} 行动……</gray>"
+    yours: "<green>轮到你行动。</green> <gray>需跟注 {amount}；请在 {seconds} 秒内放筹码并确认，或过牌/弃牌/ALL IN。</gray>"

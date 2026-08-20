@@ -1,0 +1,95 @@
+# ============================================================
+#  CasinoTables
+#  Physical-arena Texas Hold'em, Blackjack and Ludo.
+#
+#  Every player-facing string lives in the language files
+#  (lang/en_US.yml, lang/zh_CN.yml). Change "language" below to
+#  switch, or edit a language file to reword anything.
+# ============================================================
+
+# Language file to load from the plugin's lang/ folder, without the .yml suffix.
+# Ships with: en_US, zh_CN
+language: en_US
+
+# Shown on holograms, dealer name plates and broadcast prefixes.
+# Set this to your server's name.
+brand: CasinoTables
+
+economy:
+  # Fixed wager games (Ludo) use these bounds.
+  default-bet: 15.0
+  min-bet: 1.0
+  max-bet: 10000.0
+  # Fee taken when every player agrees to an early draw.
+  draw-fee-rate: 0.05
+  # Account that receives rake and house profit. Empty = the money is simply removed.
+  fee-account: ""
+
+request:
+  expire-seconds: 60
+
+game:
+  turn-timeout-seconds: 60
+
+flight-chess:
+  # 2-4 players, 2-4 sheep pieces each.
+  default-pieces: 4
+  turn-timeout-seconds: 60
+  max-duration-seconds: 2700
+  # Prize split by starting player count; last place always gets 0.
+  payout-rates-2: [0.95, 0.0]
+  payout-rates-3: [0.78, 0.19, 0.0]
+  payout-rates-4: [0.55, 0.283, 0.094, 0.0]
+
+poker:
+  small-blind: 10
+  big-blind: 20
+  # Default decor when the host has not picked one: 1-13, see /casino casino.
+  default-arena-style: 1
+  # Rake taken from the contested pot each hand. 0.005 = 0.5%.
+  # Chips returned uncontested are never raked.
+  rake-rate: 0.005
+  # No fixed wager. Each player buys in with min(balance, carry limit).
+  default-carry-limit: 2000
+  max-carry-limit: 1000000
+  action-timeout-seconds: 60
+  flop-card-reveal-delay-seconds: 2
+  all-in-reveal-delay-seconds: 5
+  next-hand-delay-seconds: 10
+  history-limit: 1000
+
+blackjack:
+  # 1-6 human players, each playing against the dealer. No bots.
+  # Bets are placed by putting physical chips in the betting zone.
+  min-bet: 10
+  max-bet: 2000
+  # Shoe size; reshuffles automatically when it cannot finish a hand.
+  deck-count: 6
+  max-carry-limit: 1000000
+  action-timeout-seconds: 30
+  bet-timeout-seconds: 20
+  next-hand-delay-seconds: 8
+
+casino-bots:
+  # Texas Hold'em tables always fill to six seats with local-algorithm bots.
+  # Bots never touch Vault: their chips are virtual and refill every hand.
+  enabled: true
+  think-min-seconds: 2
+  think-max-seconds: 5
+  # Monte Carlo samples; clamped to 40-600. Higher is sharper but costs more CPU.
+  poker-samples: 180
+
+flight-arena:
+  world-name: casinotables_flight
+  base-y: 64
+  slot-spacing: 64
+
+poker-arena:
+  world-name: casinotables_poker
+  base-y: 64
+  slot-spacing: 64
+
+blackjack-arena:
+  world-name: casinotables_blackjack
+  base-y: 64
+  slot-spacing: 64

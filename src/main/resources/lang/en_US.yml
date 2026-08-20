@@ -1,0 +1,1182 @@
+# CasinoTables - English (default language)
+#
+# Every player-facing string lives here. Edit freely: this file is copied into
+# plugins/CasinoTables/lang/ on first start and your edits are kept across
+# updates. Any key you delete falls back to the copy bundled inside the jar.
+#
+# Formatting uses MiniMessage: https://docs.advntr.dev/minimessage/format.html
+# {placeholders} in curly braces are filled in by the plugin.
+
+# Prefix put in front of every chat message the plugin sends.
+prefix: "<gray>[<gradient:#55ffff:#aa55ff>Casino</gradient><gray>] "
+
+help:
+  header: "<gradient:#55ffff:#aa55ff>—— {brand} Casino Tables ——</gradient>"
+  lines:
+    - "<yellow>/casino</yellow> <gray>- open the main menu, or show controls for your current game"
+    - "<yellow>/casino gui | chat</yellow> <gray>- switch between the inventory menu and the chat menu"
+    - "<yellow>/casino create flight [wager] | poker | blackjack</yellow> <gray>- create a room"
+    - "<yellow>/casino pieces <2|3|4></yellow> <gray>- pieces per player in Ludo"
+    - "<yellow>/casino invite <player> [game] [wager]</yellow> <gray>- poker and blackjack take no fixed wager"
+    - "<yellow>/casino invitepanel</yellow> <gray>- open a panel for inviting several players in a row"
+    - "<yellow>/casino rooms</yellow> <gray>- join a waiting room, take a free seat, or spectate"
+    - "<yellow>/casino start</yellow> <gray>- host starts the game"
+    - "<yellow>/casino wager</yellow> <gray>- set the Ludo wager in chat (1-10000)"
+    - "<yellow>/casino leave</yellow> <gray>- leave the table or disband your room"
+    - "<yellow>/casino blinds <small> <big></yellow> <gray>- host sets the Hold'em blinds"
+    - "<yellow>/casino buyin <limit></yellow> <gray>- host sets the chip carry limit"
+    - "<yellow>/casino casino [1-{styles}]</yellow> <gray>- switch table decor; no argument lists them all"
+    - "<yellow>/casino shape [1-4]</yellow> <gray>- switch room shape; no argument lists them all"
+    - "<yellow>/casino history</yellow> <gray>- your recent Hold'em hands"
+    - "<yellow>/casino bjhistory</yellow> <gray>- your recent Blackjack hands"
+    - "<yellow>/casino split</yellow> <gray>- break the chip in your main hand into smaller ones"
+    - "<yellow>/casino merge</yellow> <gray>- merge your chips into the largest denominations"
+    - "<yellow>/casino accept|deny [player]</yellow> <gray>- accept or decline an invite"
+    - "<yellow>/casino forfeit</yellow> <gray>- forfeit or fold the current game"
+    - "<yellow>/casino draw</yellow> <gray>- offer or accept a draw; a 5% fee applies when everyone agrees"
+  admin-lines:
+    - "<yellow>/casino config set flight-time <5-600></yellow> <gray>- seconds per Ludo turn"
+    - "<yellow>/casino config set poker-time <5-600></yellow> <gray>- seconds per Hold'em action"
+    - "<yellow>/casino config set poker-rake <0-20></yellow> <gray>- Hold'em rake percentage, default 0.5"
+    - "<yellow>/casino luck poker <player> <1-100|off></yellow> <gray>- secretly improve someone's cards"
+    - "<yellow>/casino badluck poker <player> <1-100|off></yellow> <gray>- secretly worsen someone's cards"
+    - "<yellow>/casino peek [player] [on|off]</yellow> <gray>- see every hole card; naming a player grants it to them"
+    - "<yellow>/casino floppeek [player] [on|off]</yellow> <gray>- see undealt community cards"
+    - "<yellow>/casino reload</yellow> <gray>- reload config and language files"
+
+error:
+  no-permission: "<red>You do not have permission."
+  players-only: "<red>This command must be run by a player."
+  unknown-game: "<red>Game must be flight, poker or blackjack."
+  unknown-player: "<red>No player named \"{player}\" has ever joined this server.</red>"
+  player-offline: "<red>That player is offline."
+  bad-amount: "<red>\"{value}\" is not a valid amount."
+
+config:
+  reloaded: "<green>Configuration reloaded."
+  reloaded-ingame: "<green>Configuration reloaded. Games already running are unaffected."
+  usage:
+    - "<yellow>/casino config get flight-time</yellow>"
+    - "<yellow>/casino config set flight-time <5-600 seconds></yellow>"
+    - "<yellow>/casino config get poker-time</yellow>"
+    - "<yellow>/casino config set poker-time <5-600 seconds></yellow>"
+    - "<yellow>/casino config get poker-rake</yellow>"
+    - "<yellow>/casino config set poker-rake <0-20 percent></yellow>"
+  flight-time:
+    label: "Seconds per Ludo turn"
+    current: "<green>Seconds per Ludo turn: <white>{seconds}</white>."
+  poker-time:
+    label: "Seconds per Hold'em action"
+    current: "<green>Seconds per Hold'em action: <white>{seconds}</white>."
+  poker-rake:
+    current: "<green>Hold'em rake: <white>{percent}%</white>. Chips returned uncontested are not raked."
+  time:
+    out-of-range: "<red>Time must be between 5 and 600 seconds."
+    not-a-number: "<red>Time must be a whole number of seconds."
+    applied: "<green>{label} is now <white>{seconds}s</white>. Takes effect from the next game."
+  rake:
+    out-of-range: "<red>Rake must be between 0 and 20, given as a percentage, e.g. 0.5.</red>"
+    not-a-number: "<red>Rake must be a number, e.g. /casino config set poker-rake 0.5</red>"
+    applied: "<green>Hold'em rake is now <white>{percent}%</white>. Takes effect from the next hand.</green>"
+
+luck:
+  usage: "<yellow>/casino {command} poker <player> [1-100|off]</yellow>"
+  unknown-game: "<red>Luck can only be set for poker.</red>"
+  effect:
+    good: "good luck"
+    bad: "bad luck"
+  pick:
+    best: "best"
+    worst: "worst"
+  query: "<gray>{player}'s {game} {effect} weight:</gray> <yellow>{percent}%</yellow> <gray>(visible to admins only)</gray>"
+  opposite-active: " <dark_gray>(the opposite effect is currently active at {percent}%)</dark_gray>"
+  not-a-number: "<red>The {effect} weight must be a whole number from 1 to 100, or off.</red>"
+  out-of-range: "<red>The {effect} weight must be between 1 and 100.</red>"
+  cleared: "<green>Silently cleared {player}'s {game} card-luck weight.</green>"
+  applied: "<green>Silently set {player}'s {game} {effect} weight to {percent}%. When it triggers, the {pick} of several random candidate hands is dealt. This replaces any opposite effect.</green>"
+
+peek:
+  name:
+    hand: "hole-card peek"
+    board: "community-card peek"
+  detail:
+    hand: "see every player's hole cards"
+    board: "see Hold'em community cards before they are dealt"
+  usage: "<yellow>/casino {command} [player] [on|off]</yellow>"
+  offline-target: "<red>Player <yellow>{player}</yellow> is offline; {what} only applies to online players.</red>"
+  self:
+    enabled: "<green><bold>{what} enabled.</bold></green> <gray>You can now {detail}. Only you can see this.</gray>"
+    disabled: "<yellow>{what} disabled. Hidden cards are concealed again.</yellow>"
+  granted: "<green>Enabled {what} for <white>{player}</white>.</green>"
+  revoked: "<yellow>Disabled {what} for <white>{player}</white>.</yellow>"
+  target:
+    enabled: "<green><bold>An admin enabled {what} for you.</bold></green> <gray>You can now {detail}. Only you can see this.</gray>"
+    disabled: "<yellow>An admin disabled your {what}. Hidden cards are concealed again.</yellow>"
+
+create:
+  usage: "<red>Usage: /casino create <flight [wager]|poker|blackjack>"
+invite:
+  usage: "<red>Usage: /casino invite <player> [flight|poker|blackjack] [wager]"
+  no-room: "<red>Name a game, or create a room you host first."
+join:
+  usage: "<red>Usage: /casino join <host></red>"
+pieces:
+  usage: "<red>Usage: /casino pieces <2|3|4>"
+  invalid: "<red>Pieces must be 2, 3 or 4."
+blinds:
+  usage: "<red>Usage: /casino blinds <small> [big]  (big defaults to small x2)"
+  not-a-number: "<red>Blinds must be whole numbers, e.g. /casino blinds 10"
+buyin:
+  usage: "<red>Usage: /casino buyin <carry limit>"
+  not-a-number: "<red>The carry limit must be a whole number, e.g. /casino buyin 2000"
+
+decor:
+  list:
+    header: "<gold><bold>—— Table decor ({count} total) ——</bold></gold>"
+    entry: "<white>{id} {name}</white> <gray>· {description}</gray> <yellow><click:run_command:'/casino casino {id}'><hover:show_text:'Click to select'>[select]</hover></click></yellow>"
+    selected: "<green><bold>✓ {id} {name}</bold></green> <gray>· {description}</gray>"
+  unknown: "<red>No such decor. Use 1-{count} or a name; run /casino casino to list them all.</red>"
+  classic: { name: "Royal Green", description: "Indoor luxury room; green felt with gold trim" }
+  luminous: { name: "Sea Lantern", description: "Glowing lantern table under green glass" }
+  nature: { name: "Open Garden", description: "Open-air garden table, no walls or roof" }
+  midnight: { name: "Midnight Gold", description: "Blackstone and deepslate with gold accents" }
+  crimson: { name: "Crimson Velvet", description: "Dark oak and deep red, old-school salon" }
+  azure: { name: "Deep Azure", description: "Prismarine and lapis, calm blue room" }
+  amethyst: { name: "Amethyst Hall", description: "Purpur pillars studded with amethyst" }
+  sakura: { name: "Cherry Courtyard", description: "Open-air cherry blossom garden" }
+  desert: { name: "Desert Oasis", description: "Sandstone and terracotta, warm tones" }
+  nether: { name: "Nether Lava", description: "Nether brick lit by shroomlights" }
+  glacier: { name: "Polar Ice", description: "Snow and blue ice under cold light" }
+  copper: { name: "Steam Copper", description: "Oxidised copper and deepslate, steampunk" }
+  ender: { name: "End Void", description: "End stone and purpur, otherworldly palette" }
+
+shape:
+  list:
+    header: "<gold><bold>—— Room shape ({count} total) ——</bold></gold>"
+    entry: "<white>{id} {name}</white> <gray>· {description}</gray> <yellow><click:run_command:'/casino shape {id}'><hover:show_text:'Click to select'>[select]</hover></click></yellow>"
+    selected: "<green><bold>✓ {id} {name}</bold></green> <gray>· {description}</gray>"
+    footer: "<gray>Shape and decor are independent; mix them freely.</gray>"
+  unknown: "<red>No such shape. Use 1-{count} or a name; run /casino shape to list them all.</red>"
+  rectangle: { name: "Rectangle", description: "Classic straight-walled room" }
+  round: { name: "Round", description: "Circular hall ringed by a curved wall" }
+  octagon: { name: "Octagon", description: "Corners cut off, between square and round" }
+  open: { name: "Open Air", description: "Floating platform, no walls or roof, pillars at the rim" }
+
+# ---- merged from lang-fragments ----
+blackjack:
+  announce:
+    hand-detail: "<white>Dealer {dealer}</white>\n<gray>Next hand in {seconds}s</gray>"
+    hand-over: "<gold><bold>Hand {hand} complete</bold></gold>"
+  arena:
+    dealer-name: "<gold><bold>◆ {brand} Blackjack Dealer ◆</bold></gold>"
+    rules: "<yellow>Blackjack pays 3:2 · Any other win pays 1:1 · A push returns your bet</yellow>\n<gray>Dealer stands on 17, soft 17 included · Insurance pays 2:1</gray>"
+    seat-boot: "<gold><bold>Dealer</bold></gold> <gray>[ ? ] [ ? ]</gray>\n<gray>Waiting for the deal</gray>\n<gray>Drop your chips in the betting box</gray>"
+    title: "<gold><bold>{brand} Blackjack</bold></gold>"
+  bank:
+    entry: "<white>{player}</white> <yellow>{chips}</yellow> <gray>can add {room}</gray>"
+    header: "<gold><bold>◆ Blackjack Royal Bank ◆</bold></gold>"
+    hint: "<green>Right-click the emerald to top up · Carry limit {limit}</green>"
+    loading: "<gold><bold>◆ Blackjack Royal Bank ◆</bold></gold>\n<gray>Loading player accounts…</gray>"
+  bet:
+    already-confirmed: "<yellow>You have already confirmed your bet.</yellow>"
+    already-locked: "<yellow>Your bet is locked in and cannot be changed this hand.</yellow>"
+    already-minimum: "<green>You are already at the minimum bet.</green>"
+    below-minimum: "<yellow>Your bet is under the {min} minimum, so you sit this hand out.</yellow>"
+    confirmed: "<green>Bet of {amount} confirmed.</green>"
+    locked-reclaim: "<yellow>Your bet is locked in; you cannot take it back this hand.</yellow>"
+    no-chips: "<red>You do not have enough chips.</red>"
+    not-betting: "<red>Betting is closed right now.</red>"
+    nothing-to-reclaim: "<gray>There are no unconfirmed chips in your betting box.</gray>"
+    reclaimed: "<yellow>Took back {amount} in chips.</yellow>"
+    timeout: "<gray>Betting time is up; whatever is on the table is your bet.</gray>"
+    topped-to-minimum: "<green>Bet topped up to the {amount} minimum. Hit confirm bet to lock it in.</green>"
+    under-minimum: "<red>The minimum bet is {min}. Add more chips, or use the min bet button.</red>"
+  button:
+    bet-confirm: "<yellow><bold>Confirm Bet</bold></yellow>"
+    bet-min: "<yellow><bold>Min Bet</bold></yellow>"
+    bet-reclaim: "<red><bold>Take Back</bold></red>"
+    double: "<gold><bold>Double</bold></gold>"
+    hit: "<aqua><bold>Hit</bold></aqua>"
+    insurance: "<dark_aqua><bold>Insurance</bold></dark_aqua>"
+    leave-after-hand: "<gray><bold>Leave After Hand</bold></gray>"
+    split: "<light_purple><bold>Split</bold></light_purple>"
+    stand: "<gold><bold>Stand</bold></gold>"
+    top-up: "<green><bold>ATM Top Up</bold></green>"
+  card:
+    face-down: "<dark_gray><bold>[ face down ]</bold></dark_gray>"
+  cashout:
+    paid: "<green>Your chips have been paid out:</green> <yellow>{amount}</yellow>"
+    pending: "<red>The payout has not landed yet; it is queued and will retry:</red> <yellow>{amount}</yellow>"
+  chip:
+    insufficient: "<red>Not enough chips: you can still bet <yellow>{remaining}</yellow>, and this chip is worth <yellow>{value}</yellow>. Try breaking it up first.</red>"
+    locked: "<yellow>Your bet is locked in this hand. Take your chips back first if you want to change it.</yellow>"
+    not-betting: "<red>Betting is closed, so you cannot place chips right now.</red>"
+    over-max: "<red>The maximum bet per hand is <yellow>{max}</yellow>, so this chip will not fit.</red>"
+    placed: "<yellow>Placed {value}; your pending bet is <white>{total}</white>.</yellow> <gray>Minimum {min} — hit confirm bet to lock it in.</gray>"
+    wrong-zone: "<red>Put your chips in the betting box in front of your seat.</red>"
+  dealer:
+    blackjack: "<red><bold>Dealer has blackjack!</bold></red>"
+    draw: "<gold>Dealer draws:</gold> {card} <gray>→ {total}</gray>"
+    hidden: "<gold><bold>Dealer</bold></gold> <gray>[ ? ] [ ? ]</gray>"
+    label: "<gold><bold>Dealer</bold></gold>"
+    no-draw: "<gray>Everyone busted, so the dealer does not draw.</gray>"
+    peek-note: "<light_purple>Hole card revealed early, only you can see this</light_purple>"
+    reveal: "<gold><bold>Dealer reveals:</bold></gold> {cards} {total}"
+    showing: "<gray>Showing {value}</gray>"
+    upcard: "<gold><bold>Dealer shows:</bold></gold> {card} <dark_gray><bold>[ face down ]</bold></dark_gray> <gray>(showing {value})</gray>"
+  double:
+    bust: "<red>Busted on the double.</red>"
+    done: "<gold><bold>Doubled down to {amount}.</bold></gold> {card} <gray>→ {hand}</gray>"
+    not-allowed: "<red>You cannot double this hand: only on your first two cards, and only with the chips to cover it.</red>"
+  enter: "<gold>Welcome to the blackjack table.</gold> <gray>Right-click your hotbar items or the ten buttons beside your seat to play.</gray>"
+  hand:
+    betting-open: "<green><bold>Betting is open for hand {hand}.</bold></green> <gray>Set your chips, then hit confirm bet. After {seconds}s whatever is on the table is bet for you.</gray>"
+    blackjack: "<gold><bold>Blackjack</bold></gold>"
+    bust: "<red><bold>Bust {total}</bold></red>"
+    dealt-header: "<gray>—— Cards dealt ——</gray>"
+    hard: "<white>Hard {total}</white>"
+    line: "<white>{player}</white> {hand}"
+    no-bets: "<yellow>Nobody bet this hand; moving straight on to the next one.</yellow>"
+    none: "<gray>No cards</gray>"
+    soft: "<aqua>Soft {total}</aqua>"
+  history:
+    empty: "<gray>There are no blackjack hands on record yet.</gray>"
+    entry-lost: "<red>[Loss]</red> <white>{time}</white> <gray>· {players} · Total bet {wagered} · {reason}</gray>"
+    entry-won: "<green>[Win]</green> <white>{time}</white> <gray>· {players} · Total bet {wagered} · {reason}</gray>"
+    header: "<gold><bold>—— Recent blackjack hands ——</bold></gold>"
+    none-for-you: "<gray>You have no blackjack hands on record yet.</gray>"
+    player-separator: ", "
+    reason:
+      dealer-bust: "dealer {total} bust"
+      dealer-total: "dealer {total}"
+      default: "settled"
+      hand: "hand {hand}: {reason}"
+  hit:
+    bust: "<red><bold>Bust — this hand loses {amount}.</bold></red>"
+    dealt: "<aqua>Hit:</aqua> {card} <gray>→ {hand}</gray>"
+    not-allowed: "<red>You cannot take another card on this hand.</red>"
+    twenty-one: "<gold>That is 21 — standing automatically.</gold>"
+  hologram:
+    bet: "<gold><bold>Bet {amount}</bold></gold>"
+    bet-confirmed: "<gold><bold>Bet {amount}</bold></gold> <green>confirmed</green>"
+    bet-pending: "<gold><bold>Bet {amount}</bold></gold> <yellow>unconfirmed</yellow>"
+    countdown: "<gray>{seconds}s</gray>"
+    doubled: " <yellow>doubled</yellow>"
+    hand-empty: "<gray>Empty seat</gray>"
+    hand-index: "<gray>Hand {index} </gray>"
+    insurance: "<dark_aqua>Insurance {amount}</dark_aqua>"
+    place-chips: "<gray>Drop your chips in the betting box</gray>"
+    seat-acting: " <green><bold>◀ TURN</bold></green>"
+    seat-chips: "<yellow>Chips {chips}</yellow>  <gold>Bet {bet}</gold>"
+    seat-empty: "<gray><bold>Empty seat</bold></gray>"
+    seat-insurance: "  <dark_aqua>Insurance {amount}</dark_aqua>"
+    seat-leaving: "<gray>Leaving after this hand</gray>"
+    seat-name: "<white><bold>{player}</bold></white>"
+    seat-open: "<gray><bold>Empty seat</bold></gray>\n<white>Take this seat from the room list at any time</white>"
+    sitting-out: "<gray>Sitting this hand out</gray>"
+    title: "<gold><bold>{brand} Blackjack · Hand {hand}</bold></gold>"
+    total-wagered: "<gold><bold>Total bet this hand {amount}</bold></gold>"
+    turn-timer:
+      normal: "<white>{player}</white> <green><bold>{seconds}s</bold></green>"
+      urgent: "<white>{player}</white> <red><bold>{seconds}s</bold></red>"
+      warning: "<white>{player}</white> <gold><bold>{seconds}s</bold></gold>"
+    waiting-deal: "<gray>Waiting for the deal</gray>"
+  insurance:
+    already: "<yellow>You have already answered on insurance this hand.</yellow>"
+    bought: "<dark_aqua>Insurance taken for {amount}.</dark_aqua>"
+    closed: "<gray>Insurance is closed.</gray>"
+    hit: "<green>Insurance pays out 2:1.</green>"
+    miss: "<gray>The dealer has no blackjack, so your insurance is lost.</gray>"
+    not-now: "<red>Insurance is not on offer right now.</red>"
+    offer: "<dark_aqua><bold>Dealer shows an Ace — insurance is open.</bold></dark_aqua> <gray>Insurance costs half your bet and pays 2:1 if the dealer has blackjack.</gray>"
+    too-poor: "<red>Not enough chips for insurance; it costs {cost}.</red>"
+  item:
+    bet-confirm:
+      lore: "<gray>Right-click to confirm the chips in your betting box</gray>"
+      name: "<green><bold>Confirm Bet</bold></green>"
+    bet-min:
+      lore: "<gray>Right-click to top your bet up to the {min} minimum</gray>"
+      name: "<yellow><bold>Min Bet</bold></yellow>"
+      note: "<dark_gray>You still have to confirm the bet afterwards</dark_gray>"
+    bet-reclaim:
+      lore: "<gray>Return unconfirmed chips from the betting box to your inventory</gray>"
+      name: "<red><bold>Take Back Chips</bold></red>"
+    betting-only: "<dark_gray>Only usable while betting is open</dark_gray>"
+    hit:
+      name: "<aqua><bold>Hit</bold></aqua>"
+    stand:
+      name: "<gold><bold>Stand</bold></gold>"
+  join:
+    announce: "<green>{player} joined the table ({count}/{max}).</green>"
+    announce-waiting: "<green>{player} joined the table ({count}/{max}).</green> <gray>They watch this hand and bet from the next one.</gray>"
+    arena-failed: "<red>Could not seat you at the table; your buy-in has been refunded.</red>"
+    busy: "<red>You are already in another room or game.</red>"
+    charge-failed: "<red>Your buy-in could not be charged, so you did not join the table.</red>"
+    full: "<red>This blackjack table is full ({max} seats).</red>"
+    min-buyin: "<red>You need at least <yellow>{amount}</yellow> to sit down at this table.</red>"
+  leave:
+    broke: "<red>You are under the minimum bet and cannot top up, so you have left the table.</red>"
+    left: "<gray>You left the blackjack table.</gray>"
+    mid-hand: "<yellow>{player} left the table; the chips already bet this hand stay in play.</yellow>"
+    scheduled-done: "<green>Leaving the table as requested.</green>"
+    scheduled-off: "<green>You are staying at the table.</green>"
+    scheduled-on: "<yellow>You will leave the table after this hand.</yellow>"
+  outcome:
+    blackjack: "<gold>Blackjack, wins {amount}</gold>"
+    bust: "<red>Bust, loses {amount}</red>"
+    dealer-blackjack: "<red>Dealer blackjack, loses {amount}</red>"
+    dealer-bust: "<green>Dealer busts, wins {amount}</green>"
+    lose: "<red>Dealer is higher, loses {amount}</red>"
+    push: "<yellow>Push, bet returned</yellow>"
+    push-blackjack: "<yellow>Both blackjack, push</yellow>"
+    win: "<green>Higher hand, wins {amount}</green>"
+  phase:
+    actions: "<aqua>Player turns</aqua>"
+    betting: "<aqua>Betting</aqua>"
+    dealer: "<aqua>Dealer plays</aqua>"
+    insurance: "<aqua>Insurance</aqua>"
+    settled: "<aqua>Settling up</aqua>"
+  room:
+    description: "Blackjack · hand {hand}, seats open"
+  seat:
+    empty-name: "Empty seat"
+  session:
+    ended: "<gold><bold>Blackjack table closed</bold></gold> <gray>({reason})</gray>"
+    paid: "<green>Your blackjack winnings have been paid out:</green> <yellow>{amount}</yellow>"
+    pending: "<red>Your blackjack payout has not landed yet; it is queued and will retry.</red>"
+    reason:
+      all-left: "everyone left the table"
+  settle:
+    header: "<gold><bold>Hand {hand} results</bold></gold>"
+    insurance-lose: "<white>{player}</white> <gray>loses {amount} on insurance</gray>"
+    insurance-win: "<white>{player}</white> <dark_aqua>wins {amount} on insurance</dark_aqua>"
+    line: "<white>{player}</white> {hand} {outcome}"
+    stack-entry: "{player} {chips}"
+    stack-separator: " | "
+    stacks: "<yellow>Chip counts:</yellow> <white>{stacks}</white>"
+  shoe:
+    reshuffled: "<gray>The shoe has been reshuffled.</gray>"
+  split:
+    aces: "<light_purple><bold>Aces split — each hand takes one card and then stands.</bold></light_purple>"
+    done: "<light_purple><bold>Hand split — {amount} riding on each hand.</bold></light_purple>"
+    not-allowed: "<red>You cannot split this hand: you need two cards of the same value, a free hand slot and enough chips.</red>"
+  stand:
+    done: "<gold>Stand:</gold> <white>{hand}</white>"
+  start:
+    failed: "<red>The blackjack table failed to start; every buy-in has been refunded.</red>"
+    min-buyin: "<red>{player} cannot cover the {amount} minimum buy-in.</red>"
+  topup:
+    at-limit: "<yellow>You are at the {limit} carry limit and cannot top up any further.</yellow>"
+    auto: "<green>You were short on chips, so {amount} was topped up from your balance.</green>"
+    done: "<green>Topped up {amount} in chips.</green>"
+    failed: "<red>The top-up could not be charged.</red>"
+    no-balance: "<red>Your balance is too low to top up.</red>"
+  turn:
+    dealer-upcard: "<gold>Dealer shows</gold> {card} <gray>({value})</gray>"
+    not-yours: "<red>It is not your turn yet.</red>"
+    option:
+      double: "double"
+      hit: "hit"
+      split: "split"
+      stand: "stand"
+    option-separator: " / "
+    prompt: "<green><bold>Your turn.</bold></green> <white>{hand}</white> <gray>Available: {options}</gray>"
+    timeout: "<red>You ran out of time, so you stand automatically.</red>"
+economy:
+  bet:
+    out-of-range: "<red>The wager must be between <yellow>{min}</yellow> and <yellow>{max}</yellow>."
+  escrow:
+    failed: "<red>The stake could not be taken, so the game did not start. Everything already charged has been refunded."
+    insufficient: "<red>{player} cannot cover the <yellow>{amount}</yellow> stake. The game did not start."
+flight:
+  actionbar:
+    line: "<bold>{side}</bold> <white>· {player}</white> <dark_gray>|</dark_gray> <aqua>Roll: {points}</aqua> <dark_gray>|</dark_gray> <yellow>{seconds}s left</yellow>"
+    points:
+      moving: "{symbol} {value} (piece moving)"
+      rolling: "{symbol} {value} (rolling)"
+      value: "{symbol} {value}"
+      waiting: "waiting for a roll"
+  arena:
+    welcome: "<gray>You are in the Ludo arena and flight is switched on, so you can rise up for a better look at the board. Right-click the dice button on your hotbar to roll from anywhere, then right-click piece buttons 1-{pieces} to move the matching sheep; the base buttons and the sheep themselves still work too.</gray>"
+  board:
+    actor: "<bold>{side}</bold> <white>· {player} is playing</white>　{time}"
+    dice:
+      points: "{symbol}　Rolled {value}"
+      rolling: "<yellow><bold>{points}</bold></yellow>"
+      settled: "<aqua><bold>{points}</bold></aqua>"
+      waiting: "Waiting for a roll"
+    initial: "<white><bold>Waiting for a roll</bold></white>"
+    piece-name: "{side} <white>· {player} · piece {index}</white>"
+    player:
+      active: "{side} <white>· {player}</white> <gray>· home </gray><green>{finished}/{total}</green>"
+      eliminated: "{side} <white>· {player}</white> <red>· knocked out</red>"
+    seat-label: "<bold>{side}</bold> <white>· {player}</white>\n<gray>Right-click the button below to roll</gray>"
+    seconds:
+      normal: "<green><bold>{seconds}s</bold></green>"
+      urgent: "<red><bold>{seconds}s</bold></red>"
+      warning: "<gold><bold>{seconds}s</bold></gold>"
+    start-label: "<bold>★ {side} start ★</bold>"
+    title: "<gold><bold>{brand} Ludo</bold></gold>"
+  capture:
+    actor: "<gold>You knocked {count} pieces back to base!"
+    victim: "<red>{player} knocked {count} of your pieces back to base."
+  color:
+    blue: "<blue>Blue</blue>"
+    green: "<green>Green</green>"
+    red: "<red>Red</red>"
+    yellow: "<yellow>Yellow</yellow>"
+  draw:
+    already-requested: "<yellow>You have already offered a draw; waiting for the other players in the room to agree."
+    broadcast: "<gold><bold>Ludo final standings:</bold></gold><yellow>Draw</yellow> <gray>({reason})</gray>"
+    mutual-broadcast: "<gold><bold>Ludo final standings:</bold></gold><yellow>Draw by agreement</yellow> <gray>(5% fee per player)</gray>"
+    mutual-refunded: "<yellow>Ludo drawn by agreement; {amount} refunded after the 5% fee on your wager.</yellow>"
+    refunded: "<yellow>The Ludo game ended in a draw and every wager has been refunded. <gray>({reason})</gray>"
+    requested: "<yellow>{player} offers a draw:</yellow> <white>{votes}/{required} agreed</white>. <gray>Everyone else, type /casino draw; once all agree a 5% fee is taken from each player.</gray>"
+    spectator: "<red>Spectators cannot offer or accept a draw.</red>"
+  eliminate:
+    broadcast: "<red>{player} is out.</red> <gray>({reason})</gray>"
+    self: "<red>You are out of the Ludo game.</red> <gray>({reason})</gray>"
+  error:
+    already-rolled: "<yellow>You already rolled a {value} - now pick a piece."
+    busy: "<red>You are already in another room or game.</red>"
+    dice-rolling: "<yellow>The dice are still rolling..."
+    need-six: "<red>A piece can only leave base on a 6."
+    no-path: "<red>Could not work out a path for that piece, please pick again.</red>"
+    not-your-piece: "<red>You can only move sheep of your own colour."
+    not-your-turn: "<red>It is {player}'s turn right now."
+    piece-finished: "<red>That piece is already home, pick another one."
+    piece-out-of-range: "<red>Each player only has {pieces} pieces in this room."
+    pieces-moving: "<yellow>A piece is still moving square by square, please wait.</yellow>"
+    roll-first: "<red>Right-click the remote dice on your hotbar first."
+    wait-dice: "<yellow>Wait for the dice to stop."
+    wrong-button: "<red>That is not the dice button at your colour's base."
+  finish:
+    broadcast: "<gold>{player} got all {pieces} pieces home and finishes in place {rank}!</gold>"
+    self: "<gold><bold>All {pieces} of your pieces are home - you finish in place {rank}!</bold></gold><gray> You are now spectating and will be skipped from here on.</gray>"
+  game:
+    start:
+      - "<green>Ludo has started!</green> <gray>Players: </gray><white>{players}</white><gray>, wager per player </gray><yellow>{wager}</yellow>."
+      - "<gray>Hotbar slot 1 is the remote dice, slots 2-{slots} are pieces 1-{pieces}; hold one and right-click to use it. The base buttons and the sheep work just as well.</gray>"
+      - "<gray>Every player gets <white>{seconds} seconds</white> per turn; run out of time and you are knocked out.</gray>"
+  item:
+    piece:
+      lore-1: "<white>Hold and right-click once you have rolled"
+      lore-2: "<gray>Moves the sheep with the matching number"
+      name: "<bold>{side} · piece {index}</bold>"
+    roll:
+      lore-1: "<white>Hold and right-click on your turn to roll"
+      lore-2: "<gray>No need to fly back to your base button"
+      name: "{color}<bold>Remote Dice</bold>"
+  move:
+    bounce: "{side} <white>· {player}</white> overshot home by <yellow>{excess}</yellow>, bouncing back to square <aqua>{cell}</aqua> of the home lane; it can carry on towards home next turn."
+    launch: "{side} <white>· {player}</white> launches a piece onto the start square <gray>(a 6 gets you out, it does not also move you 6)</gray>."
+  reason:
+    all-ranks-decided: "every remaining place has been decided"
+    disconnect: "disconnected, counted as a loss"
+    forfeit: "forfeited"
+    mutual-draw: "everyone in the room agreed to a draw"
+    offline-move: "went offline while a piece was moving"
+    offline-roll: "went offline while rolling"
+    offline-shortcut: "went offline during a shortcut flight"
+    quit: "left the game"
+    time-limit: "the game hit its time limit"
+    turn-timeout: "{player} ran out of time"
+  result:
+    entry:
+      first: "<gold>#{rank} {player}</gold>"
+      other: "<gray>#{rank} {player}</gray>"
+      second: "<aqua>#{rank} {player}</aqua>"
+      third: "<yellow>#{rank} {player}</yellow>"
+    header: "<gold><bold>Ludo final standings:</bold></gold>"
+    payout: "<gold>Your final Ludo placing: <white>#{rank}</white>; that is <white>{percent}</white> of the prize pool, <yellow>{amount}</yellow> paid out.</gold>"
+    reason: " <gray>({reason})</gray>"
+    separator: " <dark_gray>|</dark_gray> "
+  roll:
+    extra-turn: "<green>You rolled a 6, so you go again."
+    no-moves: "<gray>No piece can move, your turn ends."
+    result: "{side} <white>· {player}</white> rolled a <aqua><bold>{value}</bold></aqua>."
+    subtitle-result: "{side} <white>· {player}</white> <gray>· rolled a {value}</gray>"
+    subtitle-rolling: "{side} <white>· {player}</white> <gray>· rolling</gray>"
+    three-sixes: "<red>Three sixes in a row - your turn is skipped."
+    title: "{color}<bold>{symbol}　{value}</bold>"
+  room:
+    status: "In progress · {count} players · fly in to spectate"
+  roster-separator: ", "
+  round:
+    subtitle: "{side} <white>· {player} is playing</white>"
+    title: "<gold><bold>Round {round} begins!</bold></gold>"
+  shortcut:
+    lane: "{side} <white>· {player}</white> takes the central flight lane and <gold><bold>skips 12 squares</bold></gold>!"
+    same-colour: "{side} <white>· {player}</white> lands on a matching colour and <aqua><bold>hops 4 squares</bold></aqua>!"
+  shutdown:
+    refunded: "<yellow>The server is shutting down; your Ludo wager has been refunded."
+  spectate:
+    active: "<aqua>You are spectating a Ludo game.</aqua> <gray>Fly around freely; type /casino leave to stop.</gray>"
+    joined-arena: "<aqua>Now spectating the Ludo game.</aqua> <gray>You can fly around to watch the board, but you cannot roll or move pieces; type <white>/casino leave</white> to stop spectating.</gray>"
+    joined-game: "<aqua>You are now spectating the Ludo game.</aqua> <gray>Fly around freely: you see whose turn it is, the countdown, the dice animation and the result as they happen, but you cannot touch the dice or the pieces.</gray>"
+    left: "<gray>You have stopped spectating the Ludo game.</gray>"
+    turn: "<aqua>Spectating: </aqua>{side} <white>· {player}</white><gray> is playing.</gray>"
+  status:
+    current-turn: "<gray>Current turn: </gray>{side} <white>· {player}</white>. <gray>Use the remote dice and the piece buttons on your hotbar, or click the sheep and buttons on the board directly.</gray>"
+  turn:
+    subtitle: "<white>Roll and move a piece within {seconds} seconds</white>"
+    title: "{color}<bold>Your turn!</bold>"
+    waiting: "<gray>Waiting for {player} to move..."
+    yours: "<green>It is your turn. Right-click the remote dice on your hotbar to roll."
+game:
+  blackjack:
+    display: "Blackjack"
+  draw:
+    not-in-game: "<red>You are not in a game that is currently running."
+  flight:
+    display: "Ludo"
+  forfeit:
+    not-in-game: "<red>You are not in a game right now."
+  poker:
+    display: "Texas Hold'em"
+  start:
+    busy: "<red>You or another player is already in a game."
+    failed:
+      real: "<red>The table failed to open; your buy-in has been refunded."
+      wager: "<red>The game failed to start; your wager has been refunded."
+    player-count: "<red>{game} needs {minimum}-{maximum} players."
+invites:
+  already-member: "<red>That player is already in your room."
+  busy: "<red>You or that player is already in a game or a room."
+  button:
+    accept: "<green>[Accept]</green>"
+    accept-hover: "<green>Click to accept the invite"
+    deny: " <red>[Decline]</red>"
+    deny-hover: "<red>Click to decline the invite"
+  cancel:
+    done: "<yellow>Withdrew all of your pending invites."
+    none: "<red>You have no pending invites."
+    target: "<gray>{player} withdrew their invite."
+  denied:
+    self: "<yellow>Declined {player}'s invite."
+    sender: "<red>{player} declined your invite."
+  not-found: "<red>No matching invite found."
+  received:
+    real: "<yellow>{player}</yellow> invites you to play <white>{game}</white>, buying in with real Vault currency, with no fixed wager. <gray>(Accept to join the room.)</gray> "
+    wager: "<yellow>{player}</yellow> invites you to play <white>{game}</white> for <yellow>{amount}</yellow>. <gray>(Accept to join the room.)</gray> "
+  self: "<red>You cannot invite yourself."
+  sender-offline: "<red>Whoever sent that invite is offline."
+  sent:
+    real: "<green>Invited <yellow>{player}</yellow> to your {game} room. The table plays with real Vault currency, so there is no fixed wager."
+    wager: "<green>Invited <yellow>{player}</yellow> to your {game} room for <yellow>{amount}</yellow>. Once they accept, the host starts the game."
+lobby:
+  active-room:
+    spectate: "Spectate"
+    take-seat: "Take a seat"
+  bet:
+    changed: "<gold>The host set the wager to <white>{amount}</white> per player. Old invites are void, so invite anyone who has not joined yet again."
+    not-host: "<red>Only the host can change this room's wager."
+    real-currency: "<red>Hold'em and Blackjack have no fixed wager; the chips on the table are real Vault currency."
+  blinds:
+    changed: "<gold>The host set the blinds to <white>{small}/{big}</white>."
+    invalid: "<red>Table stakes must satisfy: 1 ≤ first value ≤ 10000, and first value < second value ≤ min({maximum}, first value × 200).</red>"
+    not-host: "<red>Only the host can set the table stakes."
+    preference: "<green>Your table stakes are now <white>{small}/{big}</white>. They apply to the next Hold'em or Blackjack room you create."
+  buyin:
+    changed: "<gold>The host set the per-player carry limit to <white>{buyin}</white>."
+    not-host: "<red>Only the host can set the carry limit."
+    out-of-range: "<red>The carry limit must be between the big blind ({minimum}) and {maximum}."
+    preference: "<green>Your carry limit is now <white>{buyin}</white>."
+  create:
+    already-in-room: "<red>You are already in a room. Leave it with <yellow>/casino leave</yellow> first."
+    done:
+      real: "<green>Created a {game} room, 1/{maximum} players. Buy-ins use real Vault currency, so there is no fixed wager."
+      wager: "<green>Created a {game} room, 1/{maximum} players, wager <yellow>{amount}</yellow>."
+    hint:
+      real: "<gray>The host can run <yellow>/casino start</yellow> alone; bots fill the empty seats up to six.</gray>"
+      wager: "<gray>Keep inviting players; once there are at least 2, run <yellow>/casino start</yellow>.</gray>"
+    in-game: "<red>You cannot create a room while you are in a game."
+    pieces: "<gray>Each player gets <white>{pieces} pieces</white>. The host can change that with <yellow>/casino pieces 2|3|4</yellow>."
+    stakes:
+      blackjack: "<gray>Ante/raise limits <white>{small}/{big}</white>, carry limit <white>{buyin}</white>. The host can change them with <yellow>/casino blinds</yellow> and <yellow>/casino buyin</yellow>. Table decor: <white>{decor}</white>, switch it with <yellow>/casino casino 1|2|3</yellow>.</gray>"
+      poker: "<gray>Blinds <white>{small}/{big}</white>, carry limit <white>{buyin}</white>. The host can change them with <yellow>/casino blinds</yellow> and <yellow>/casino buyin</yellow>. Table decor: <white>{decor}</white>, switch it with <yellow>/casino casino 1|2|3</yellow>.</gray>"
+  decor:
+    changed: "<gold>The host switched the table decor to <white>{id} · {name}</white>.</gold> <gray>{description}</gray>"
+    invalid: "<red>Table decor must be 1, 2 or 3.</red>"
+    not-host: "<red>Only the host can change the table decor.</red>"
+    preference: "<green>Your table decor is now <white>{id} · {name}</white>. It applies to the next Hold'em or Blackjack room you create.</green>"
+  disbanded: "<yellow>The host disbanded the room."
+  full: "<red>The room is full ({maximum} players max)."
+  host-quit: "<yellow>The host went offline; the room has been disbanded."
+  host-start-hint: "<yellow>Run /casino start once you have enough players.</yellow>"
+  invite:
+    mismatch:
+      real: "<red>Your room is already {game} played with real currency. Disband it with <yellow>/casino leave</yellow> before changing that."
+      wager: "<red>Your room is already {game} for {amount}. Disband it with <yellow>/casino leave</yellow> before changing that."
+  join:
+    busy: "<red>You are already in another room or game."
+    gone: "<red>That room no longer exists."
+    unavailable: "<red>That room is gone, cannot be spectated, or the table is already full.</red>"
+  joined: "<green>{player} joined the room.</green> <gray>Now {size}/{maximum} players.</gray>"
+  leave:
+    not-in-room: "<red>You are not in a room."
+  left: "<yellow>{player} left the room.</yellow> <gray>Now {size}/{maximum} players.</gray>"
+  member-quit: "<yellow>{player} went offline and left the room."
+  not-casino-room: "<red>This room is not a Hold'em or Blackjack table.</red>"
+  not-flight-room: "<red>This room is not a Ludo room."
+  pieces:
+    changed: "<gold>The host set Ludo to <white>{pieces} pieces</white> per player."
+    not-host: "<red>Only the host can set the number of pieces."
+    preference: "<green>Your Ludo setting is now <white>{pieces} pieces</white> per player."
+  shape:
+    changed: "<green>Room shape set to <white>{name}</white>.</green> <gray>{description}. Takes effect from the next table you open.</gray>"
+    invalid: "<red>No such room shape.</red>"
+  start:
+    member-offline: "<red>A member of the room went offline. Wait for them to be removed, or create the room again."
+    not-host: "<red>Only the host can start, and you do not have a room of your own."
+    too-few: "<red>You need at least {minimum} player(s) to start."
+menu:
+  chat:
+    blackjack:
+      hover: "1-6 players; each against the dealer; hit, stand, double, split and insurance; real currency"
+      label: "<dark_aqua><bold>[Create a Blackjack table]</bold></dark_aqua>"
+    blinds:
+      hover: "Click, then edit the numbers on the command line"
+      label: "<gold>[Set the table stakes: {small}/{big}]</gold>"
+    buyin:
+      hover: "Click, then edit the number on the command line"
+      label: "<gold>[Set the chip carry limit: {limit}]</gold>"
+    decor:
+      hover: "Decor {id} is active; click to list all {count} styles"
+      label: "<gold><bold>[Table decor: {name}]</bold></gold>"
+    decor-1:
+      hover: "Green felt level with the floor, chips stack straight up"
+      selected: "<green><bold>[✓ Decor 1: Royal Green]</bold></green>"
+      unselected: "<white>[Decor 1: Royal Green]</white>"
+    decor-2:
+      hover: "Glowstone and sea lantern betting area under glass"
+      selected: "<green><bold>[✓ Decor 2: Sea Lantern]</bold></green>"
+      unselected: "<aqua>[Decor 2: Sea Lantern]</aqua>"
+    decor-3:
+      hover: "A leafy garden around an open-air table"
+      selected: "<green><bold>[✓ Decor 3: Open Garden]</bold></green>"
+      unselected: "<green>[Decor 3: Open Garden]</green>"
+    flight:
+      hover: "2-4 players, current wager {bet}"
+      label: "<aqua><bold>[Create a Ludo room]</bold></aqua>"
+    footer: "<gray>This is only the start menu; once a game begins you use titles, holograms and buttons on the table, so the GUI never covers your screen.</gray>"
+    header: "<gradient:#55ffff:#aa55ff>—— {brand} Casino Tables (chat menu) ——</gradient>"
+    invitepanel:
+      hover: "The panel refreshes after each invite so you can keep going"
+      label: "<aqua>[Open the invite panel]</aqua>"
+    leave:
+      hover: "The host disbands the room by clicking this"
+      label: "<red>[Leave / disband the room]</red>"
+    pieces:
+      hover-current: "Currently selected"
+      hover-set: "Switch to {count} pieces per player"
+      label: "<aqua>[Ludo: {count} pieces]</aqua>"
+    poker:
+      hover: "2-6 players, played with real Vault currency"
+      label: "<gold><bold>[Create a Hold'em room]</bold></gold>"
+    room: "<gray>Your room:</gray><white>{game}</white> <gray>· {current}/{max} players · {rules}</gray>"
+    rooms:
+      hover: "Join a waiting room, take a free seat at a running Hold'em table, or spectate a Ludo game"
+      label: "<aqua><bold>[Join an existing room: {count} open]</bold></aqua>"
+    start:
+      hover-bots: "Start any time; bots fill the remaining seats"
+      hover-minimum: "The host can start once two players are in"
+      label: "<green><bold>[Start the game]</bold></green>"
+    to-gui:
+      hover: "/casino will open the inventory GUI from now on"
+      label: "<aqua><bold>[Switch to the GUI menu]</bold></aqua>"
+    wager:
+      hover: "Click, then type a number from 1 to 10000 in chat"
+      label: "<yellow><bold>[Set the wager: {bet}]</bold></yellow>"
+  chat-invites:
+    back:
+      hover: "Back to the casino chat menu"
+      label: "<yellow>[Done inviting / back]</yellow>"
+    empty: "<gray>Nobody else online can be invited right now.</gray>"
+    footer: "<gray>Click as many players as you like; pressing Esc just closes the chat and does not disband the room.</gray>"
+    header: "<gradient:#55ffff:#aa55ff>—— {game} invite panel ——</gradient>"
+    invite:
+      hover: "The panel refreshes itself after the invite is sent"
+      label: "<green>[Invite]</green> <white>{player}</white>"
+    pending: "<dark_gray>[Invited] {player} (waiting for an answer)</dark_gray>"
+    room: "<gray>Room:</gray><white>{members}</white> <gray>({current}/{max})</gray>"
+    separator: ", "
+    start:
+      hover: "The host starts the current room"
+      label: "<green><bold>[Start the game]</bold></green>"
+  chat-rooms:
+    active-join:
+      hover: "Watch the current hand, then play from the next one"
+      label: "<aqua>[Sit in]</aqua> <white>{host}</white> <gray>· {game} · {status}</gray>"
+    active-spectate:
+      hover: "Watch only; no seat and no share of the pot"
+      label: "<aqua>[Spectate]</aqua> <white>{host}</white> <gray>· {game} · {status}</gray>"
+    back:
+      hover: "Back to the casino menu"
+      label: "<yellow>[Back to the main menu]</yellow>"
+    empty: "<gray>No room is waiting for players right now.</gray>"
+    header: "<gradient:#55ffff:#aa55ff>—— Rooms you can join ——</gradient>"
+    lobby:
+      hover: "Click to join this waiting room"
+      label: "<green>[Join]</green> <white>{host}</white> <gray>· {game} · {current}/{max} · {rules}</gray>"
+  common:
+    back: "<yellow>Back to the main menu</yellow>"
+    close: "<red>Close</red>"
+    to-chat:
+      lore: "<gray>/casino will open the clickable chat menu from now on</gray>"
+      name: "<yellow>Switch to the chat menu</yellow>"
+  input:
+    bet-invalid: "<red>Enter a number between 1 and 10000."
+    bet-prompt: "<yellow>Type the wager in chat (1-10000), or type \"cancel\" to abort.</yellow>"
+    bet-set: "<green>The invite wager is now <yellow>{bet}</yellow>."
+    blinds-invalid: "<red>Enter two whole numbers, for example: <yellow>10 20</yellow>."
+    blinds-prompt: "<yellow>Type two table stakes, for example <white>10 20</white>: in Hold'em these are the small and big blind. Type \"cancel\" to abort.</yellow>"
+    buyin-invalid: "<red>Enter a whole number for the carry limit, for example: <yellow>2000</yellow>."
+    buyin-prompt: "<yellow>Type the chip carry limit per player, for example <white>2000</white>; type \"cancel\" to abort.</yellow>"
+    cancelled: "<gray>Input cancelled."
+  invite:
+    no-host-room: "<red>Create a Ludo, Hold'em or Blackjack room that you host first."
+  invites:
+    empty: "<gray>Nobody online left to invite</gray>"
+    invite:
+      lore: "<gray>Click to send the invite and refresh</gray>"
+      name: "<green>Invite {player}</green>"
+    pending:
+      lore: "<dark_gray>Waiting for an answer</dark_gray>"
+      name: "<gray>Invited {player}</gray>"
+    refresh: "<aqua>Refresh the player list</aqua>"
+    start: "<green><bold>Start the game</bold></green>"
+    title: "<dark_aqua>Invite players · {game}</dark_aqua>"
+  main:
+    blackjack:
+      lore-actions: "<gray>Hit, stand, double, split and insurance; blackjack pays 3:2</gray>"
+      lore-currency: "<yellow>Played with real Vault currency</yellow>"
+      lore-players: "<gray>1-6 players, each against the dealer, so you can play solo</gray>"
+      name: "<dark_aqua><bold>Create a Blackjack table</bold></dark_aqua>"
+    blinds:
+      lore-current: "<white>Hold'em small/big blind:</white> {small}/{big}"
+      name: "<gold>Set the table stakes</gold>"
+    buyin:
+      lore-current: "<white>Current:</white> {limit}"
+      name: "<green>Set the chip carry limit</green>"
+    decor:
+      lore-count: "<dark_gray>{count} in total; /casino casino [1-{count}] picks one directly</dark_gray>"
+      lore-description: "<gray>{description}</gray>"
+      lore-next: "<yellow>Click to switch to {id}: {name}</yellow>"
+      name: "<green><bold>✓ Decor {id}: {name}</bold></green>"
+    decor-list:
+      lore: "<gray>Lists all {count} styles in chat, click one to select it</gray>"
+      name: "<aqua><bold>All table decor</bold></aqua>"
+    flight:
+      lore-players: "<gray>2-4 players</gray>"
+      lore-wager: "<yellow>Wager:</yellow> {bet}"
+      name: "<aqua><bold>Create a Ludo room</bold></aqua>"
+    history:
+      other: "<light_purple>Blackjack history</light_purple>"
+      poker: "<gold>Hold'em history</gold>"
+    invite:
+      lore: "<gray>The panel stays open after each invite</gray>"
+      name: "<aqua>Invite players one after another</aqua>"
+    leave:
+      lore: "<gray>The host disbands the room by leaving</gray>"
+      name: "<red>Leave / disband the room</red>"
+    pieces:
+      selected: "<green><bold>✓ Ludo: {count} pieces</bold></green>"
+      unselected: "<white>Ludo: {count} pieces</white>"
+    poker:
+      lore-players: "<gray>2-6 players, played with real Vault currency</gray>"
+      name: "<gold><bold>Create a Hold'em room</bold></gold>"
+    room:
+      lore-players: "<gray>Players:</gray> {current}/{max}"
+      lore-rules: "<gray>Stakes:</gray> {rules}"
+      name: "<white>Your room: {game}</white>"
+    rooms:
+      lore-count: "<white>Open right now:</white> {count}"
+      lore-what: "<gray>Join a waiting room, take a free seat at a running Hold'em table, or spectate a Ludo game</gray>"
+      name: "<aqua><bold>Join an existing room</bold></aqua>"
+    start:
+      lore-bots: "<gray>Start any time; bots fill the remaining seats</gray>"
+      lore-minimum: "<gray>Needs at least two players</gray>"
+      name: "<green><bold>Start the game</bold></green>"
+    title: "<dark_aqua>{brand} Casino Tables</dark_aqua>"
+    wager:
+      lore-current: "<white>Current:</white> {bet}"
+      lore-range: "<gray>Between 1 and 10000</gray>"
+      name: "<yellow>Change the Ludo wager</yellow>"
+  mode:
+    chat: "<green>The start menu is now the clickable chat version.</green>"
+    gui: "<green>The start menu is now the inventory GUI.</green>"
+  rooms:
+    active:
+      name-join: "<aqua><bold>Sit in · {host}</bold></aqua>"
+      name-spectate: "<aqua><bold>Spectate · {host}</bold></aqua>"
+    empty: "<gray>No rooms are open right now</gray>"
+    entry:
+      game: "<white>Game:</white> {game}"
+      players: "<white>Players:</white> {current}/{max}"
+      rules: "<gray>Stakes:</gray> {rules}"
+      seated: "<white>Seated:</white> {count}"
+      status: "<gray>Status:</gray> {status}"
+    lobby:
+      name: "<green><bold>Join {host}'s room</bold></green>"
+    refresh: "<aqua>Refresh the room list</aqua>"
+    title: "<dark_aqua>Join an existing room</dark_aqua>"
+  rules:
+    chat-main:
+      ante: "real currency; ante/step {small}/{big}; carry limit {limit}; decor {decor}"
+      blinds: "real currency; blinds {small}/{big}; carry limit {limit}; decor {decor}"
+      wager: "wager {bet}"
+      wager-pieces: "wager {bet}; {pieces} pieces each"
+    chat-rooms:
+      ante: "ante/step {small}/{big}, limit {limit}, decor {decor}"
+      blinds: "blinds {small}/{big}, limit {limit}, decor {decor}"
+      wager: "wager {bet}"
+    main:
+      ante: "ante/step {small}/{big}, carry limit {limit}, decor {decor}"
+      blinds: "blinds {small}/{big}, carry limit {limit}, decor {decor}"
+      wager: "wager {bet}"
+      wager-pieces: "wager {bet}, {pieces} pieces each"
+    rooms:
+      ante: "ante/step {small}/{big}, carry limit {limit}"
+      blinds: "blinds {small}/{big}, carry limit {limit}"
+      wager: "wager {bet}"
+      wager-pieces: "wager {bet}, {pieces} pieces each"
+poker:
+  action:
+    all-in: "<red><bold>ALL IN!</bold> {amount} in the middle."
+    all-in-total: "<red><bold>ALL IN!</bold> {amount} in this round."
+    bet-confirmed: "<green>Bet of {amount} confirmed."
+    call-filled: "<green>Added {added} for you. The call is {needed}, pending bet {pending}. Press \"confirm bet / check\" to lock it in.</green>"
+    call-filled-all-in: "<gold>Added all {added} of your remaining chips. The call is {needed}, pending bet {pending}, so this will be an all-in call. Press confirm.</gold>"
+    called-to: "<green>Call {amount}."
+    checked: "<green>Check."
+    chip-placed-exact: "<yellow>Put in {value}. Pending bet <white>{pending}</white>; the call is <aqua>{needed}</aqua> and is <green>fully covered</green>.</yellow>"
+    chip-placed-over: "<yellow>Put in {value}. Pending bet <white>{pending}</white>; the call is <aqua>{needed}</aqua>, <gold>{over}</gold> over the call (a raise).</yellow>"
+    chip-placed-short: "<yellow>Put in {value}. Pending bet <white>{pending}</white>; the call is <aqua>{needed}</aqua>, still <red>{short}</red> short.</yellow>"
+    chip-too-large: "<red>Not enough left to bet: you can still put in <yellow>{remaining}</yellow>, but this chip is worth <yellow>{value}</yellow>. That is a value limit, not a block limit; split the chip first or go all in.</red>"
+    folded-broadcast: "<yellow>{player} folds.</yellow> <gray>({reason})</gray>"
+    need-more: "<red>You need to put in {amount} more to call."
+    no-chips: "<red>You have no chips left to put in."
+    no-pending: "<gray>You have no pending chips."
+    not-betting-phase: "<yellow>There is no betting going on right now.</yellow>"
+    not-your-turn: "<red>It is not your turn yet."
+    not-your-turn-bet: "<red>It is not your turn, so you cannot bet."
+    nothing-to-call: "<green>There is nothing to call. Press the \"confirm bet / check\" button by your seat to check.</green>"
+    other-seat-button: "<red>That is {player}'s button. Use the ones beside your own seat.</red>"
+    pending-returned: "<green>Pending chips taken back and merged again."
+    raise-closed: "<red>An all-in below the minimum raise came before you, so this round you can only call or fold."
+    raise-locked: "<red>The raise is closed this round; you can only call or fold."
+    raise-not-reopened: "<red>The raise is not reopened this round; you can only call the current bet."
+    raise-short: "<red>You are {amount} short of the minimum raise; you can also just go all in."
+    raise-too-poor: "<red>You do not have enough chips for the minimum raise. Go all in, call, or fold."
+    raised-to: "<gold>Raise to {amount}."
+    wrong-bet-zone: "<red>Put your chips in the betting area in front of your own seat."
+  arena:
+    atm:
+      bot-wallet: " <light_purple>BOT funds unlimited</light_purple>"
+      header: "<gold><bold>◆ {brand} Royal Vault ATM ◆</bold></gold>\n<gray>Vault balance / chips at the table / bet this hand</gray>\n<green>Right-click the emerald at any time to buy chips · carry limit {limit}</green>\n<gray>Chips + bets this hand + queued top-ups must stay within the limit; top-ups bought mid-hand apply from the next hand</gray>"
+      line: "\n<white>{player}</white>{wallet} <yellow>Chips {chips}</yellow> <aqua>This hand {hand}</aqua>{queued} <gray>Can add {room}</gray>"
+      loading: "<gold><bold>{brand} Royal Vault ATM</bold></gold>\n<gray>Reading accounts…</gray>"
+      queued: " <green>Next hand +{amount}</green>"
+      wallet: " <green>Wallet {balance}</green>"
+    bet-zone:
+      active: "<yellow><bold>▶▶ {player}'s betting box ◀◀</bold></yellow>"
+      chips: "\n<gold>Chips {chips}</gold>"
+      empty: "<gray>Open betting box</gray>"
+      label: "<gray>▼</gray> <white>{player}'s betting box</white> <gray>▼</gray>"
+      pending: " <yellow>· pending {pending}</yellow>"
+    board:
+      cards: "<gold><bold>Board</bold></gold> {cards}"
+      empty: "<gold><bold>Board</bold></gold> <gray>[ ? ] [ ? ] [ ? ] [ ? ] [ ? ]</gray>"
+      peek-note: "\n<light_purple>Cards in ( ) have not been dealt yet - only you can see them</light_purple>"
+    chip:
+      merge-done: "<green>Merged your chips into the largest denominations: {summary} - {pieces} chips in total.</green>"
+      merge-overflow: "<red>That balance is too large to show as physical chips - ask an admin to lower the carry limit.</red>"
+      split-done: "<green>Broke 1 {from} down into {count} x {to}.</green>"
+      split-need-chip: "<red>Hold a chip in your main hand before splitting it."
+      split-no-space: "<red>Not enough inventory space for the smaller chips - bet or take some back first."
+      split-smallest: "<gray>That is already the smallest chip - it cannot be broken down any further."
+    chip-pile:
+      label: "<yellow><bold>{chip} × {count}</bold></yellow>"
+    control:
+      all-in: "<light_purple><bold>ALL IN</bold></light_purple>"
+      call: "<yellow><bold>Match Call</bold></yellow>"
+      confirm: "<green><bold>Confirm Bet / Check</bold></green>"
+      fold: "<red><bold>Fold</bold></red>"
+      withdraw: "<aqua><bold>Take Chips Back</bold></aqua>"
+    dealer:
+      name: "<gold><bold>◆ {brand} Royal Dealer ◆</bold></gold>"
+    exit:
+      armed: "<red><bold>✓ Leaving when this hand ends</bold></red>\n<gray>Right-click the button to cancel</gray>"
+      idle: "<yellow><bold>Leave after this hand</bold></yellow>\n<gray>Right-click the button below to arm it</gray>"
+    hole:
+      empty: "<gray><bold>[ Empty ]</bold>"
+      left: "<gray><bold>[ Left table ]</bold>"
+      next-hand: "<gray><bold>[ Dealt next hand ]</bold>"
+    item:
+      call:
+        hint: "<gray>Right-click to add exactly the chips needed to call"
+        name: "<yellow><bold>One-Click Call"
+        note: "<dark_gray>You still have to confirm the bet afterwards"
+      chip:
+        merge: "<gold>Sneak + right-click air: merge everything into bigger chips"
+        name: "<yellow>{chip} <gray>({value} each)"
+        place: "<white>Drop these in the black betting box in front of your seat"
+        smallest: "<dark_gray>Smallest denomination - cannot be split"
+        split: "<aqua>Right-click air: split one into smaller chips"
+      confirm:
+        hint: "<gray>Right-click to commit your pending chips, or to check when nothing is owed"
+        name: "<green><bold>Confirm Bet / Check"
+      hand:
+        dealt:
+          hint: "<gray>Both hole cards in one item, only visible in your inventory"
+          name: "<gold><bold>Your hand:</bold></gold> {first} {second}"
+          note: "<aqua>Your best hand shows on the private hologram above your seat</aqua>"
+        none:
+          hint: "<gray>You have no hole cards right now"
+          name: "<gray><bold>Not in this hand</bold></gray>"
+    role:
+      big-blind: "BB"
+      dealer: "BTN"
+      small-blind: "SB"
+    seat:
+      empty: "<gray><bold>Empty Seat</bold></gray>\n<white>Join from the room list at any time</white>"
+      name: "<white>{player}"
+      status: "<white><bold>{player}</bold> {role}\n{state} <yellow>Chips {chips}</yellow> <aqua>Round {round}</aqua>{pending}\n<gray>{wins} wins · {winrate} win rate</gray>"
+      status-pending: " <gold>Pending {pending}</gold>"
+      waiting: "<white><bold>{player}</bold></white>\n<yellow>Waiting to be dealt in next hand</yellow>"
+    state:
+      acting: "<green>Acting"
+      all-in: "<gold>ALL IN"
+      folded: "<red>Folded"
+      joining-next: "<yellow>Joining next hand"
+      waiting: "<gray>Waiting"
+    strength:
+      current: "<aqua><bold>Best hand:</bold></aqua> <white>{hand}</white>"
+      folded: "<red>Current hand: folded</red>"
+      left: "<gray>Left the table</gray>"
+      sitting-out: "<yellow>Sitting out · dealt in next hand</yellow>"
+      waiting-player: "<gray>Waiting for a player</gray>"
+    table:
+      acting: "<white>{player} is acting</white>　{color}<bold>{seconds}s</bold>"
+      loading: "<gold><bold>{brand} Texas Hold'em</bold>\n<gray>Setting up the table…</gray>"
+      message: "<gold><bold>{brand} Texas Hold'em</bold></gold>\n{headline}\n{detail}\n<gold><bold>Total pot {pot}</bold></gold>"
+      pot: "\n<gold><bold>Total pot {pot}</bold></gold>"
+      pot-breakdown: " <gray>(pot {pot} + pending {pending})</gray>"
+      seat-line: "\n<white>{player}</white> <aqua>Round {round}</aqua>{pending} <gray>· Total bet {total}</gray>"
+      seat-pending: " <yellow>+pending {pending}</yellow>"
+      settling: "<gray>Settling up</gray>"
+      title: "<gold><bold>{brand} Texas Hold'em</bold></gold>"
+    welcome: "<gray>You are now inside the physical Texas Hold'em room. Your inventory only holds chips - call, confirm, take back, all in and fold all use the real buttons beside your seat."
+  atm:
+    bought-live: "<green>ATM exchange complete:</green><yellow>{amount} in chips</yellow><gray>. Against the carry limit: {stack} in front of you + {committed} already bet + {queued} waiting = {total}/{limit}. The new chips come into play next hand.</gray>"
+    bought-paused: "<green>ATM exchange complete:</green><yellow>{amount} in chips</yellow><gray>. You now hold {stack}/{limit}, ready for the next hand.</gray>"
+    broadcast-live: "<gold>{player} topped up {amount} in chips; to keep this hand fair they come into play next hand.</gold>"
+    broadcast-paused: "<gold>{player} topped up {amount} in chips at the ATM.</gold>"
+    charge-failed: "<red>The ATM could not take the payment, so no chips were added. Try again later or leave the table.</red>"
+    left-table: "<red>You have left the table, so you cannot buy more chips.</red>"
+    limit-committed: " + {amount} already bet this hand"
+    limit-queued: " + {amount} waiting for the next hand"
+    limit-reached: "<yellow>You are at this table's carry limit of {limit}.</yellow> <gray>Counted as: {stack} in front of you{committed}{queued}.</gray>"
+    no-balance: "<red>Your Vault balance has no whole units left to exchange.</red> <gray>You could still add up to {room} in chips.</gray>"
+  board:
+    broadcast: "<gold><bold>{title}:</bold></gold><white> {cards}</white>"
+    empty: "none yet"
+    final: "Final board"
+    separator: "  "
+  bot:
+    action:
+      all-in: "all in"
+      call: "call"
+      check: "check"
+      fold: "fold"
+      raise: "raise"
+    decided: "<aqua>{player} has decided:</aqua><gray> {action}.</gray>"
+    name:
+      assassin: "The Assassin"
+      calling-station: "Calling Station"
+      hothead: "Hothead"
+      maniac: "Maniac"
+      old-fox: "Old Fox"
+      rock: "The Rock"
+    refill: "<light_purple>{player} topped up {amount} in chips automatically; bot funds are not capped by a Vault balance.</light_purple>"
+    tier:
+      novice: "Novice"
+      pro: "Pro"
+      regular: "Regular"
+  chips:
+    copper: "Copper Block"
+    diamond: "Diamond Block"
+    emerald: "Emerald Block"
+    folded-no-sort: "<red>You have folded; you cannot rearrange your chips.</red>"
+    gold: "Gold Block"
+    iron: "Iron Block"
+    item-lore-merge: "<gold>Sneak + right-click the air: merge everything into bigger chips"
+    item-lore-place: "<white>Place it in the betting area in front of your seat to bet"
+    item-lore-smallest: "<dark_gray>Smallest chip; cannot be split"
+    item-lore-split: "<aqua>Right-click the air: split one into smaller chips"
+    item-name: "<yellow>{name} <gray>({value} each)"
+    merge-done: "<green>Merged into the biggest chips possible: {chips} - {pieces} chips in total.</green>"
+    merge-no-space: "<red>Too many chips for your inventory; they cannot all be merged and shown.</red>"
+    redstone: "Redstone Block"
+    split-done: "<green>Split one {from} into {count} x {to} of the same total value.</green>"
+    split-failed: "<red>Could not split that chip; your inventory has been rebuilt from your current stack.</red>"
+    split-no-space: "<red>Not enough inventory space to split that chip.</red>"
+    split-smallest: "<yellow>That is the smallest chip; it cannot be split any further.</yellow>"
+    summary-empty: "none"
+    summary-entry: "{name} x{count}"
+    summary-separator: ", "
+  common:
+    name-separator: ", "
+    nobody: "nobody"
+  draw:
+    already-voted: "<yellow>You already offered a draw; waiting for the other players in the room to agree."
+    broadcast: "<gold><bold>Hold'em final result:</bold></gold><yellow>draw agreed by everyone</yellow> <gray>(a 5% fee is taken from every cash-out)</gray>"
+    paid: "<yellow>Draw agreed. After the 5% fee your money has been returned: <white>{amount}</white>.</yellow>"
+    pending: "<red>The draw payout has not landed yet; it is queued and will retry automatically.</red>"
+    requested: "<yellow>{player} offers a draw:</yellow><white> {votes}/{required} agreed</white>. <gray>Everyone else in the room, run /casino draw. If all agree, a 5% fee is taken from every cash-out.</gray>"
+  error:
+    not-in-game: "<red>You are not in a Hold'em game right now.</red>"
+  exit:
+    armed: "<yellow>Auto-leave on: 10 seconds after this hand is settled your remaining chips are cashed out and you leave the room.</yellow>"
+    cancelled: "<green>Auto-leave after this hand cancelled.</green>"
+  hand:
+    next-started: "<green><bold>Hand #{hand} is on!</bold></green> <gray>Dealer: {dealer}, blinds {small}/{big}.</gray>"
+    start: "<green>Texas Hold'em is under way!</green> <gray>Players:</gray><white>{players}</white><gray>. The table plays for real Vault money; there is no fixed wager on top.</gray>"
+    start-controls: "<gray>Your inventory holds chips only. Use the buttons beside your seat to fill the call, confirm a bet or check, take chips back, go all in, or fold. Right-click the air holding a chip to split it, sneak + right-click to merge into bigger chips. You get {seconds} seconds per action.</gray>"
+    start-seat: "<gray>Blinds this hand <white>{small}/{big}</white>; your position: {role}; you brought <white>{stack}</white> to the table, host carry limit <white>{limit}</white>."
+  hand-desc:
+    flush: "{rank}-high Flush"
+    four-of-a-kind: "Four {rank}s"
+    full-house: "{rank}s full of {kicker}s"
+    high-card: "{rank} High"
+    none: "nothing yet"
+    pair: "Pair of {rank}s"
+    straight: "{rank}-high Straight"
+    straight-flush: "{rank}-high Straight Flush"
+    three-of-a-kind: "Three {rank}s"
+    two-pair: "{rank}s and {kicker}s"
+  hand-type:
+    flush: "Flush"
+    four-of-a-kind: "Four of a Kind"
+    full-house: "Full House"
+    high-card: "High Card"
+    pair: "One Pair"
+    straight: "Straight"
+    straight-flush: "Straight Flush"
+    three-of-a-kind: "Three of a Kind"
+    two-pair: "Two Pair"
+  history:
+    draw-reason: "{reason} (5% fee)"
+    empty: "<gray>No Hold'em hands recorded yet."
+    entry: "{result} <gray>{time}</gray> <white>{names}</white> <gray>{reason}</gray>{money}"
+    hand-reason: "Hand #{hand}: {reason}"
+    header: "<gradient:#ffd700:#55ffff>—— Hold'em history ——</gradient>"
+    lost: "<red>LOST</red>"
+    money: " <yellow>back {returned}</yellow> <gray>net {net}</gray>"
+    summary: "<gray>Hands <white>{games}</white>  Won <white>{wins}</white>  Win rate <white>{rate}</white>"
+    won: "<green>WON</green>"
+  join:
+    arena-failed: "<red>Could not put you in the casino room; your buy-in has been refunded.</red>"
+    bought-live: "<gold>Bought in for {amount} in chips.</gold> <gray>You sit out this hand; your chips are locked in and come into play next hand.</gray>"
+    bought-paused: "<gold>Bought in for {amount} in chips.</gold> <gray>You sit out this hand and are dealt in when the next one starts.</gray>"
+    broadcast: "<green>{player} joined the table ({count}/{max}).</green> <gray>They sit out this hand and are dealt in from the next one.</gray>"
+    broadcast-replaced: "<green>{player} joined the table ({count}/{max}).</green> <gray>{bot} gave up the seat.</gray> <gray>They sit out this hand and are dealt in from the next one.</gray>"
+    busy: "<red>You are already in another room or game.</red>"
+    charge-failed: "<red>The buy-in could not be charged, so you did not join the table.</red>"
+    ended: "<red>That Hold'em table has already closed.</red>"
+    full: "<red>That Hold'em table is full ({max} seats).</red>"
+    min-buyin: "<red>You need at least <yellow>{minimum}</yellow> to sit down here; the host's carry limit is {limit}.</red>"
+  leave:
+    all-in-kept: "<yellow>{player} left the table; their all-in hand stays live until the showdown.</yellow>"
+    auto-paid: "<green>Auto-leave done as scheduled; your money has been returned:</green><yellow>{amount}</yellow>."
+    auto-pending: "<red>The auto-leave payout has not landed yet; it is queued and will retry automatically:</red><yellow>{amount}</yellow>."
+    busted: "<red>You are out of chips, so you have been taken off the table.</red>"
+    paid: "<green>You left the table. Everything not already in the pot has been returned:</green><yellow>{amount}</yellow>."
+    pending: "<red>Your cash-out has not landed yet; it is queued and will retry automatically:</red><yellow>{amount}</yellow>."
+  reason:
+    all-left-table: "all human players have left the table"
+    bot-fold: "bot strategy fold"
+    bot-yield: "gave the seat to a joining player"
+    disconnected: "disconnected, hand forfeited"
+    everyone-folded: "everyone else folded"
+    fold: "folded"
+    forfeit: "folded and left the table"
+    leave-after-hand: "left once the hand was settled"
+    mutual-draw: "everyone in the room agreed to a draw"
+    no-humans-left: "every human player has left the table"
+    quit: "quit mid-session"
+    showdown: "showdown"
+    timeout: "{player} ran out of time"
+  reveal:
+    all-in-broadcast: "<gold><bold>Everyone still in the hand is all in!</bold></gold> <gray>The three flop cards come 2 seconds apart, the turn and river 5 seconds apart.</gray>"
+    all-in-subtitle: "<white>{next} in {seconds}s</white>"
+    all-in-title: "<gold><bold>All-in run-out</bold></gold>"
+    flop-subtitle: "<white>Flop card {index} lands in {seconds}s</white>"
+    flop-title: "<gold><bold>Flop, card by card</bold></gold>"
+    next-flop: "flop card {index}"
+    next-river: "the river"
+    next-showdown: "the showdown"
+    next-turn: "the turn"
+  role:
+    big-blind: "Big Blind"
+    dealer: "Dealer"
+    none: "no blind"
+    small-blind: "Small Blind"
+  room:
+    detail: "Blinds {small}/{big}, carry limit {limit}, bots fill the empty seats"
+  seat:
+    empty: "Empty seat"
+  session:
+    broadcast-result: "<gold><bold>Hold'em final result:</bold></gold><green> {winners} wins</green> <gray>({reason})</gray>"
+    paid: "<green>Your Hold'em cash-out has landed:</green><yellow>{amount}</yellow>."
+    pending: "<red>Your Hold'em cash-out has not landed yet; it is queued and will retry automatically:</red><yellow>{amount}</yellow>."
+    shutdown-refund: "<yellow>The server is shutting down; your full buy-in has been refunded."
+    you-lost: "<red>You lost at Hold'em.<gray> ({reason})</gray>"
+    you-won: "<green>You won at Hold'em!</green><gray> ({reason})</gray>"
+    you-won-shared: "<green>You are one of the winners at Hold'em!</green><gray> ({reason})</gray>"
+  settle:
+    broadcast-next: "<gray>The redstone lamps stay lit. If at least two players are still seated in 10 seconds, the next hand starts automatically. Run <white>/casino leave</white> to leave.</gray>"
+    broadcast-rake: "<red><bold>House rake:</bold></red><white> {rake}</white> <gray>({percent}%)</gray>"
+    broadcast-result: "<gold><bold>Hand #{hand} settled:</bold></gold><green> {winners} wins</green> <gray>({reason})</gray>"
+    broadcast-stacks: "<aqua><bold>Chip counts:</bold></aqua><white> {stacks}</white>  <gold><bold>Total on the table: {total}</bold></gold>"
+    broadcast-winnings: "<yellow><bold>Winnings:</bold></yellow><white> {winnings}</white>"
+    busted: "<red>You are out of chips.</red> <gray>Run /casino leave to go, or right-click the emerald on the vault ATM within 10 seconds to rebuy from your Vault balance.</gray>"
+    center-subtitle: "<green>Winner: {winners}</green>\n<yellow>{winnings}</yellow>\n<red>House rake: {rake} ({percent}%)</red>\n<aqua>Chip counts: {stacks}</aqua>\n<gold>Total on the table: {total}</gold>\n<white>Next hand in 10 seconds</white>"
+    center-title: "<gold><bold>Hand #{hand} over</bold></gold>"
+    no-winner: "nobody won anything"
+    rebuy-applied: "<green>Your early rebuy of <yellow>{amount}</yellow> in chips is on the table now and ready for the next hand.</green>"
+    rebuy-locked: "<green>The <yellow>{amount}</yellow> in chips you bought early is locked in and comes into play before the next hand.</green>"
+    stack-entry: "{player} {stack}"
+    stack-none: "none"
+    stack-separator: " | "
+    winner-line: "{player} won {amount} (net {net})"
+    winner-separator: "; "
+  showdown:
+    reveal: "<gray>Showdown:</gray><white> {player} {cards} ({hand})</white>"
+  split:
+    hold-chip: "<red>Hold the chip you want to split in your main hand, then run /casino split.</red>"
+  start:
+    big-blind-too-large: "<red>The big blind cannot be more than 200x the small blind, so the table did not start.</red>"
+    charge-failed: "<red>The buy-ins could not be charged, so the table did not start; anything already taken has been refunded."
+    failed: "<red>The table failed to start; every buy-in has been refunded."
+    insufficient-balance: "<red>{player} cannot cover the minimum buy-in of <yellow>{minimum}</yellow>, which is what it takes to deal at least five of every chip."
+  status:
+    controls: "<gray>Your inventory holds physical chips only. The five buttons by your seat are: fill the call, confirm bet/check, take back pending chips, all in, and fold. Right-click the air with a chip to split it, sneak + right-click to merge. No chest menu ever opens.</gray>"
+    folded: "<gray>You folded; you are watching the rest of this hand."
+    hand-paused: "<yellow>This hand is settled. The next one starts automatically after the 10-second recap; use <white>/casino leave</white> to leave the table.</yellow>"
+    hand-paused-short: "<yellow>The hand recap is still on screen. Hold on, or use /casino leave to leave the table.</yellow>"
+    revealing: "<gold>Dealing the community cards one by one: 2 seconds between flop cards, 5 seconds for the turn and the river.</gold>"
+    revealing-short: "<yellow>The community cards are still being revealed; you cannot act yet.</yellow>"
+    waiting: "<gray>Waiting for {player} to act.</gray>"
+    your-turn: "<green>It is your turn to act.</green>"
+  street:
+    flop: "Flop"
+    preflop: "Pre-flop"
+    river: "River"
+    turn: "Turn"
+  turn:
+    title-waiting: "<gray>Waiting for <white>{player}</white></gray>"
+    title-yours: "<yellow>Your turn to act</yellow>"
+    waiting: "<gray>Waiting for {player} to act...</gray>"
+    yours: "<green>Your turn.</green> <gray>{amount} to call. Place your chips and confirm within {seconds} seconds, or check, fold, or go all in.</gray>"
