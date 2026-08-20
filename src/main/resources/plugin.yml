@@ -1,5 +1,5 @@
 name: CasinoTables
-version: 1.0.1
+version: 1.0.2
 main: io.github.xingguanglang.casinotables.CasinoTablesPlugin
 api-version: '1.21'
 description: Physical-arena Texas Hold'em, Blackjack and Ludo. Real Vault currency, entity chips, 13 decors, 4 room shapes.

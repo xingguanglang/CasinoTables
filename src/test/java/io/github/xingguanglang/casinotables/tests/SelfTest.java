@@ -35,6 +35,7 @@ public final class SelfTest {
         testPokerChips();
         testPokerMoney();
         testContestedPot();
+        testDeferredReasons();
         testPokerArenaStyles();
         testFlightRules();
         testFlightControls();
@@ -141,6 +142,34 @@ public final class SelfTest {
             int contested = PokerMoney.contestedPot(contribution);
             check(contested >= 0 && contested <= pot, "可抽水底池必须落在 0 与底池之间：" + contested + "/" + pot);
         }
+    }
+
+    /**
+     * 历史记录存的是键和参数，不是渲染死的句子。服主中途换语言时，
+     * 老记录必须跟着变成新语言，而升级前写下的旧格式记录必须照旧能读出来。
+     */
+    private static void testDeferredReasons() {
+        io.github.xingguanglang.casinotables.Reason showdown =
+                io.github.xingguanglang.casinotables.Reason.of("poker.reason.showdown");
+        check(showdown.key().equals("poker.reason.showdown"), "理由必须记住自己的键");
+        check(showdown.args().isEmpty(), "无占位符的理由不该带参数");
+        check(!showdown.render().startsWith("<missing:"), "理由的键在语言文件里必须存在");
+        check(showdown.toString().equals(showdown.render()), "toString 必须等于渲染结果");
+
+        io.github.xingguanglang.casinotables.Reason timeout =
+                io.github.xingguanglang.casinotables.Reason.of("poker.reason.timeout", "player", "Steve");
+        check(timeout.render().contains("Steve"), "带占位符的理由必须把参数填进去");
+        check(!timeout.render().contains("{player}"), "占位符不能原样漏给玩家");
+
+        // 新格式优先，且真的按语言文件渲染。
+        String fromStored = io.github.xingguanglang.casinotables.Reason.render(
+                timeout.toStored(), "stale text written by an older build");
+        check(fromStored.equals(timeout.render()), "存下来的键必须能还原成同一句话");
+        // 没有新格式时退回旧的渲染文本，绝不能把历史读成空白。
+        check(io.github.xingguanglang.casinotables.Reason.render(null, "showdown").equals("showdown"),
+                "旧格式记录必须原样读出");
+        check(io.github.xingguanglang.casinotables.Reason.render(null, null).isEmpty(),
+                "两边都没有时应返回空串而不是崩溃");
     }
 
     private static void testPoker() {
@@ -536,10 +565,11 @@ public final class SelfTest {
 
         org.bukkit.configuration.file.YamlConfiguration en = loadLanguage("en_US");
         java.util.regex.Pattern literal = java.util.regex.Pattern.compile(
-                "Messages[.](?:msg|msgList)[(][ ]*\"([^\"]+)\"");
+                "(?:Messages[.](?:msg|msgList)|Reason[.]of)[(][ ]*\"([^\"]+)\"");
+        // Reason.of 也是取文本的入口：理由的键同样必须在语言文件里存在。
         // 用枚举名等值拼出来的键，交给 testComputedMessageKeys 逐个取一遍。
         java.util.regex.Pattern computed = java.util.regex.Pattern.compile(
-                "Messages[.](?:msg|msgList)[(][ ]*\"[^\"]*\"[ ]*[+]");
+                "(?:Messages[.](?:msg|msgList)|Reason[.]of)[(][ ]*\"[^\"]*\"[ ]*[+]");
 
         Set<String> missing = new java.util.TreeSet<>();
         Set<String> referenced = new java.util.TreeSet<>();

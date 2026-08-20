@@ -1,5 +1,6 @@
 package io.github.xingguanglang.casinotables.blackjack;
 
+import io.github.xingguanglang.casinotables.Reason;
 import io.github.xingguanglang.casinotables.ActiveRoom;
 import io.github.xingguanglang.casinotables.CasinoTablesPlugin;
 import io.github.xingguanglang.casinotables.GameType;
@@ -189,7 +190,7 @@ public final class BlackjackManager {
         if (!account.isEmpty()) plugin.economy().deposit(Bukkit.getOfflinePlayer(account), amount);
     }
 
-    void recordHand(BlackjackGame game, List<UUID> winners, int wagered, int houseProfit, String reason) {
+    void recordHand(BlackjackGame game, List<UUID> winners, int wagered, int houseProfit, Reason reason) {
         List<UUID> ids = new ArrayList<>();
         List<String> names = new ArrayList<>();
         for (int side = 0; side < game.seatCapacity(); side++) {
@@ -199,8 +200,7 @@ public final class BlackjackManager {
         }
         List<UUID> realWinners = winners.stream().filter(ids::contains).toList();
         records.record(ids, names, realWinners, wagered, houseProfit,
-                Messages.msg("blackjack.history.reason.hand", "hand", game.handNumber(), "reason", reason),
-                game.startedAt());
+                reason, game.handNumber(), game.startedAt());
     }
 
     void finishSession(BlackjackGame game, String reason) {

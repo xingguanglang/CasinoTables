@@ -1,5 +1,6 @@
 package io.github.xingguanglang.casinotables.blackjack;
 
+import io.github.xingguanglang.casinotables.Reason;
 import io.github.xingguanglang.casinotables.CasinoTablesPlugin;
 import io.github.xingguanglang.casinotables.Messages;
 import io.github.xingguanglang.casinotables.Text;
@@ -445,7 +446,7 @@ final class BlackjackGame {
         int houseProfit = (int) Math.max(0, staked - returned);
         manager.collectHouseProfit(houseProfit);
         manager.recordHand(this, winners, (int) staked, houseProfit,
-                Messages.msg(dealerBust ? "blackjack.history.reason.dealer-bust"
+                Reason.of(dealerBust ? "blackjack.history.reason.dealer-bust"
                         : "blackjack.history.reason.dealer-total", "total", BlackjackHand.value(dealer)));
         arena.celebrate(winners);
         arena.announce(Messages.msg("blackjack.announce.hand-over", "hand", handNumber),

@@ -2,6 +2,7 @@ package io.github.xingguanglang.casinotables.poker;
 
 import io.github.xingguanglang.casinotables.CasinoTablesPlugin;
 import io.github.xingguanglang.casinotables.Messages;
+import io.github.xingguanglang.casinotables.Reason;
 import io.github.xingguanglang.casinotables.Text;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -44,9 +45,38 @@ final class PokerRecords {
         return value == null ? new Stats(0, 0) : new Stats(value.games, value.wins);
     }
 
+    /** settleDraw 这类没有手数的记录用它占位。 */
+    static final int NO_HAND = -1;
+
+    /** 把内层理由套进「第 N 手」或「平局」的外壳里。 */
+    private static String renderReason(String key, List<String> args, int handNumber) {
+        String inner = Messages.msg(key, args.toArray());
+        return handNumber == NO_HAND
+                ? Messages.msg("poker.history.draw-reason", "reason", inner)
+                : Messages.msg("poker.history.hand-reason", "hand", handNumber, "reason", inner);
+    }
+
+    /**
+     * 取一条记录的理由。
+     *
+     * <p>新记录存的是键和参数，按当前语言现场渲染；升级前写下的老记录只有渲染死的
+     * reason 字段，那就原样用——不能因为格式换了就让历史一片空白。
+     */
+    private static String storedReason(Map<String, Object> entry) {
+        if (entry.get("reason-key") instanceof String key) {
+            List<String> args = new ArrayList<>();
+            if (entry.get("reason-args") instanceof List<?> list) {
+                for (Object item : list) args.add(String.valueOf(item));
+            }
+            Object hand = entry.get("hand");
+            return renderReason(key, args, hand instanceof Number number ? number.intValue() : NO_HAND);
+        }
+        return String.valueOf(entry.getOrDefault("reason", ""));
+    }
+
     void record(List<UUID> players, List<String> names, List<UUID> winners, int smallBlind, int bigBlind,
                 int carryLimit, int[] initialStacks, int[] cashOuts, List<PokerCard> board,
-                int[] finalStacks, String reason, long startedAt) {
+                int[] finalStacks, Reason reason, int handNumber, long startedAt) {
         for (UUID id : players) {
             MutableStats value = stats.computeIfAbsent(id, ignored -> new MutableStats());
             value.games++;
@@ -66,7 +96,12 @@ final class PokerRecords {
         entry.put("early-cash-outs", java.util.Arrays.stream(cashOuts).boxed().toList());
         entry.put("board", board.stream().map(PokerCard::plainDisplay).toList());
         entry.put("final-stacks", java.util.Arrays.stream(finalStacks).boxed().toList());
-        entry.put("reason", reason);
+        // 存键和参数，不存渲染好的句子：服主换语言后整段历史跟着换。
+        // 同时保留渲染结果，一来给直接翻 yml 的人看，二来给降级回旧版本的读取兜底。
+        entry.put("reason-key", reason.key());
+        entry.put("reason-args", new ArrayList<>(reason.args()));
+        if (handNumber != NO_HAND) entry.put("hand", handNumber);
+        entry.put("reason", renderReason(reason.key(), reason.args(), handNumber));
         history.add(0, entry);
         int limit = Math.max(100, plugin.getConfig().getInt("poker.history-limit", 1000));
         while (history.size() > limit) history.removeLast();
@@ -85,12 +120,12 @@ final class PokerRecords {
             long time = number(entry.get("time"), 0L);
             boolean won = entry.get("winners") instanceof List<?> winners && winners.contains(id);
             // 直接塞 List 会渲染成 [Steve, Alex]（带方括号），而且绕过语言文件里的分隔符。
-        Object rawNames = entry.get("names");
-        String names = rawNames instanceof java.util.List<?> list
-                ? list.stream().map(String::valueOf)
-                        .collect(java.util.stream.Collectors.joining(
-                                Messages.msg("poker.common.name-separator")))
-                : String.valueOf(rawNames == null ? "" : rawNames);
+            Object rawNames = entry.get("names");
+            String names = rawNames instanceof List<?> list
+                    ? list.stream().map(String::valueOf)
+                            .collect(java.util.stream.Collectors.joining(
+                                    Messages.msg("poker.common.name-separator")))
+                    : String.valueOf(rawNames == null ? "" : rawNames);
             int side = values.indexOf(id);
             long initial = listNumber(entry.get("initial-stacks"), side);
             long returned = listNumber(entry.get("early-cash-outs"), side)
@@ -103,7 +138,7 @@ final class PokerRecords {
                     "result", Messages.msg(won ? "poker.history.won" : "poker.history.lost"),
                     "time", TIME.format(Instant.ofEpochMilli(time)),
                     "names", names,
-                    "reason", entry.getOrDefault("reason", ""),
+                    "reason", storedReason(entry),
                     "money", money));
             if (++shown >= 10) break;
         }

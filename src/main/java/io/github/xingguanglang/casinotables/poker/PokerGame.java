@@ -1,5 +1,6 @@
 package io.github.xingguanglang.casinotables.poker;
 
+import io.github.xingguanglang.casinotables.Reason;
 import io.github.xingguanglang.casinotables.CasinoTablesPlugin;
 import io.github.xingguanglang.casinotables.GameType;
 import io.github.xingguanglang.casinotables.Messages;
@@ -303,7 +304,7 @@ final class PokerGame {
             return true;
         }
         if (material == Material.RED_DYE) {
-            if (side == actor) fold(player.getUniqueId(), Messages.msg("poker.reason.fold"));
+            if (side == actor) fold(player.getUniqueId(), Reason.of("poker.reason.fold"));
             else send(side, Messages.msg("poker.action.not-your-turn"));
             return true;
         }
@@ -318,7 +319,7 @@ final class PokerGame {
         int side = side(player.getUniqueId());
         if (side < 0 || ended || arena == null || !arena.isExitButton(side, block)) return false;
         if (handPaused) {
-            leave(player, Messages.msg("poker.reason.leave-after-hand"));
+            leave(player, Reason.of("poker.reason.leave-after-hand"));
             return true;
         }
         leaveAfterHand[side] = !leaveAfterHand[side];
@@ -416,7 +417,7 @@ final class PokerGame {
         String replacedBot = botSeat[side] ? names[side] : null;
         int botContribution = contribution[side];
         if (botSeat[side] && !handPaused && !folded[side]) {
-            fold(players[side], Messages.msg("poker.reason.bot-yield"));
+            fold(players[side], Reason.of("poker.reason.bot-yield"));
         }
         boolean joinDuringHand = !handPaused;
         players[side] = player.getUniqueId();
@@ -565,7 +566,7 @@ final class PokerGame {
     private void afterAction(int side) {
         if (ended) return;
         if (notFoldedCount() == 1) {
-            awardUncontested(Messages.msg("poker.reason.everyone-folded"));
+            awardUncontested(Reason.of("poker.reason.everyone-folded"));
             return;
         }
         if (roundComplete()) {
@@ -736,7 +737,7 @@ final class PokerGame {
                 if (!folded[side] && scores[side] == best) winningSides.add(side);
             }
         }
-        settleWithWinners(winningSides, Messages.msg("poker.reason.showdown"));
+        settleWithWinners(winningSides, Reason.of("poker.reason.showdown"));
     }
 
     private Set<Integer> distributePot(long[] scores) {
@@ -789,7 +790,7 @@ final class PokerGame {
         return winningSides;
     }
 
-    private void awardUncontested(String reason) {
+    private void awardUncontested(Reason reason) {
         int winner = -1;
         for (int side = 0; side < players.length; side++) if (!folded[side]) winner = side;
         if (winner < 0) return;
@@ -808,7 +809,7 @@ final class PokerGame {
         settleWithWinners(Set.of(winner), reason);
     }
 
-    private void settleWithWinners(Set<Integer> winningSides, String reason) {
+    private void settleWithWinners(Set<Integer> winningSides, Reason reason) {
         List<UUID> winners = new ArrayList<>();
         for (int side : winningSides) winners.add(players[side]);
         lastWinningSides = Set.copyOf(winningSides);
@@ -839,7 +840,7 @@ final class PokerGame {
                 .orElse(Messages.msg("poker.settle.stack-none"));
         int totalAssets = java.util.Arrays.stream(stack).sum();
         broadcast(Messages.msg("poker.settle.broadcast-result", "hand", handNumber,
-                "winners", winnerNames, "reason", reason));
+                "winners", winnerNames, "reason", reason.render()));
         broadcast(Messages.msg("poker.settle.broadcast-winnings", "winnings", winnerMoney));
         broadcast(Messages.msg("poker.settle.broadcast-rake", "rake", lastHandRake,
                 "percent", formatRakePercent()));
@@ -915,7 +916,7 @@ final class PokerGame {
         if (realSeatedCount() < 1) {
             ended = true;
             handPaused = false;
-            manager.finishSession(this, sessionWinnerIds(), Messages.msg("poker.reason.no-humans-left"));
+            manager.finishSession(this, sessionWinnerIds(), Reason.of("poker.reason.no-humans-left"));
             return;
         }
         startNextHand();
@@ -990,7 +991,7 @@ final class PokerGame {
         return result;
     }
 
-    void fold(UUID player, String reason) {
+    void fold(UUID player, Reason reason) {
         if (ended) return;
         int side = side(player);
         if (side < 0 || folded[side]) return;
@@ -999,9 +1000,9 @@ final class PokerGame {
         acted.add(side);
         arena.punishFold(side);
         broadcast(Messages.msg("poker.action.folded-broadcast", "player", names[side],
-                "reason", reason));
+                "reason", reason.render()));
         if (notFoldedCount() == 1) {
-            awardUncontested(Messages.msg("poker.reason.everyone-folded"));
+            awardUncontested(Reason.of("poker.reason.everyone-folded"));
             return;
         }
         if (side == actor) afterAction(side);
@@ -1009,15 +1010,15 @@ final class PokerGame {
         else refresh();
     }
 
-    void leave(Player player, String reason) {
+    void leave(Player player, Reason reason) {
         leave(player, reason, false);
     }
 
     void disconnect(Player player) {
-        leave(player, Messages.msg("poker.reason.disconnected"), true);
+        leave(player, Reason.of("poker.reason.disconnected"), true);
     }
 
-    private void leave(Player player, String reason, boolean forceFold) {
+    private void leave(Player player, Reason reason, boolean forceFold) {
         int side = side(player.getUniqueId());
         if (side < 0 || !seated[side]) return;
         if (!ended && !handPaused && !folded[side] && (forceFold || stack[side] > 0)) {
@@ -1040,10 +1041,11 @@ final class PokerGame {
         if (!ended && realSeatedCount() < 1) {
             ended = true;
             actor = -1;
-            manager.finishSession(this, List.of(), Messages.msg("poker.reason.all-left-table"));
+            manager.finishSession(this, List.of(), Reason.of("poker.reason.all-left-table"));
         }
     }
 
+    /** reason 这里是给付款流水看的英文审计备注，不是玩家文本，所以不走语言文件。 */
     private int cashOutSeat(int side, String reason) {
         int amount = Math.max(0, stack[side] + queuedRebuy[side]);
         stack[side] = 0;
@@ -1072,7 +1074,7 @@ final class PokerGame {
         actor = -1;
         ended = true;
         syncArena();
-        manager.settleDraw(this, totalFee, Messages.msg("poker.reason.mutual-draw"));
+        manager.settleDraw(this, totalFee, Reason.of("poker.reason.mutual-draw"));
     }
 
     void tick() {
@@ -1082,7 +1084,7 @@ final class PokerGame {
             return;
         }
         if (System.currentTimeMillis() >= deadline) {
-            fold(players[actor], Messages.msg("poker.reason.timeout", "player", names[actor]));
+            fold(players[actor], Reason.of("poker.reason.timeout", "player", names[actor]));
             return;
         }
         showCountdown();
@@ -1109,7 +1111,7 @@ final class PokerGame {
                 else betTo(side, Math.min(currentBet, maximum));
             }
             case ALL_IN -> allIn(side);
-            case FOLD -> fold(players[side], Messages.msg("poker.reason.bot-fold"));
+            case FOLD -> fold(players[side], Reason.of("poker.reason.bot-fold"));
         }
     }
 

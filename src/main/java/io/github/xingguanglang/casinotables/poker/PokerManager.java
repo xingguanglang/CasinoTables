@@ -1,5 +1,6 @@
 package io.github.xingguanglang.casinotables.poker;
 
+import io.github.xingguanglang.casinotables.Reason;
 import io.github.xingguanglang.casinotables.ActiveRoom;
 import io.github.xingguanglang.casinotables.CasinoTablesPlugin;
 import io.github.xingguanglang.casinotables.GameType;
@@ -203,7 +204,7 @@ public final class PokerManager {
     public boolean forfeit(Player player) {
         PokerGame game = byPlayer.get(player.getUniqueId());
         if (game == null) return false;
-        game.leave(player, Messages.msg("poker.reason.forfeit"));
+        game.leave(player, Reason.of("poker.reason.forfeit"));
         return true;
     }
 
@@ -217,7 +218,7 @@ public final class PokerManager {
     public boolean quit(Player player) {
         PokerGame game = byPlayer.get(player.getUniqueId());
         if (game == null) return false;
-        game.leave(player, Messages.msg("poker.reason.quit"));
+        game.leave(player, Reason.of("poker.reason.quit"));
         return true;
     }
 
@@ -248,7 +249,7 @@ public final class PokerManager {
         }
     }
 
-    void recordHand(PokerGame game, List<UUID> winnerIds, String reason) {
+    void recordHand(PokerGame game, List<UUID> winnerIds, Reason reason) {
         int[] handInitial = game.handInitialStacks();
         int[] finalStacks = game.stacks();
         List<UUID> players = new ArrayList<>();
@@ -270,11 +271,10 @@ public final class PokerManager {
         records.record(players, names, realWinners, game.smallBlind(), game.bigBlind(),
                 game.carryLimit(), initial.stream().mapToInt(Integer::intValue).toArray(),
                 new int[players.size()], game.board(), result.stream().mapToInt(Integer::intValue).toArray(),
-                Messages.msg("poker.history.hand-reason", "hand", game.handNumber(), "reason", reason),
-                game.handStartedAt());
+                reason, game.handNumber(), game.handStartedAt());
     }
 
-    void finishSession(PokerGame game, List<UUID> winnerIds, String reason) {
+    void finishSession(PokerGame game, List<UUID> winnerIds, Reason reason) {
         if (!games.remove(game)) return;
         finishing.add(game);
         boolean multipleWinners = winnerIds.size() > 1;
@@ -311,7 +311,7 @@ public final class PokerManager {
         Bukkit.getScheduler().runTaskLater(plugin, () -> finish(game), 40L);
     }
 
-    void settleDraw(PokerGame game, int totalFee, String reason) {
+    void settleDraw(PokerGame game, int totalFee, Reason reason) {
         if (!games.remove(game)) return;
         finishing.add(game);
         int[] finalStacks = game.stacks();
@@ -345,7 +345,7 @@ public final class PokerManager {
                 game.carryLimit(), recordInitial.stream().mapToInt(Integer::intValue).toArray(),
                 recordCashOuts.stream().mapToInt(Integer::intValue).toArray(), game.board(),
                 recordFinal.stream().mapToInt(Integer::intValue).toArray(),
-                Messages.msg("poker.history.draw-reason", "reason", reason), game.startedAt());
+                reason, PokerRecords.NO_HAND, game.startedAt());
         game.refreshArena();
         Bukkit.broadcast(Text.prefixed(Messages.msg("poker.draw.broadcast")));
         Bukkit.getScheduler().runTaskLater(plugin, () -> finish(game), 80L);
