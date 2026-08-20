@@ -70,6 +70,8 @@ final class PokerArena {
             Material.YELLOW_CONCRETE, Material.LIME_CONCRETE, Material.LIGHT_BLUE_CONCRETE,
             Material.MAGENTA_CONCRETE, Material.RED_CONCRETE
     };
+    /** 按钮标签的缩放。按钮间距一格，标签超过约一格宽就会互相重叠。 */
+    private static final float CONTROL_LABEL_SCALE = 0.62F;
     private static final String[] CONTROL_LABEL_KEYS = {
             "poker.arena.control.call",
             "poker.arena.control.confirm",
@@ -477,6 +479,10 @@ final class PokerArena {
             for (int action = 0; action < CONTROL_ACTIONS.length; action++) {
                 controlButtonLabels[side][action] = spawnText(controlButtonLabelLocation(side, action),
                         Messages.msg(CONTROL_LABEL_KEYS[action]), 105);
+                // 五个按钮只隔一格，标签必须缩小才不会压到邻居身上。
+                // 中文两个字勉强塞得下，英文一旦长一点就整排糊成一团——BlackjackArena
+                // 早就用 0.55 解决了同样的问题，这里对齐它的做法。
+                scaleText(controlButtonLabels[side][action], CONTROL_LABEL_SCALE);
             }
             for (int card = 0; card < 2; card++) {
                 PokerCard value = hole[side][card];

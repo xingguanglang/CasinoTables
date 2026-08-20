@@ -36,6 +36,8 @@ public final class SelfTest {
         testPokerMoney();
         testContestedPot();
         testDeferredReasons();
+        testButtonLabelWidth();
+        testChipsFitHotbar();
         testPokerArenaStyles();
         testFlightRules();
         testFlightControls();
@@ -170,6 +172,58 @@ public final class SelfTest {
                 "旧格式记录必须原样读出");
         check(io.github.xingguanglang.casinotables.Reason.render(null, null).isEmpty(),
                 "两边都没有时应返回空串而不是崩溃");
+    }
+
+    /**
+     * 世界里的实体按钮一格一个，标签只有约一格的横向余地。
+     *
+     * <p>德州那五个控制按钮曾经用「Confirm Bet / Check」这种长文案，在英文下整排糊成一团——
+     * 中文两个字看不出问题，换成英文就压到邻居身上了。翻译改长了没人拦得住，所以这里按
+     * 可见宽度卡死：去掉 MiniMessage 标签后，中日韩字算两格，其余算一格。
+     */
+    private static void testButtonLabelWidth() {
+        int budget = 10;
+        java.util.regex.Pattern tag = java.util.regex.Pattern.compile("<[^>]*>");
+        List<String> keys = new ArrayList<>();
+        for (String action : List.of("call", "confirm", "withdraw", "all-in", "fold")) {
+            keys.add("poker.arena.control." + action);
+        }
+        for (io.github.xingguanglang.casinotables.blackjack.BlackjackAction action
+                : io.github.xingguanglang.casinotables.blackjack.BlackjackAction.values()) {
+            keys.add(action.key());
+        }
+        for (String code : List.of("en_US", "zh_CN")) {
+            org.bukkit.configuration.file.YamlConfiguration yaml = loadLanguage(code);
+            for (String key : keys) {
+                String raw = yaml.getString(key);
+                check(raw != null, code + " 缺少按钮文案 " + key);
+                String plain = tag.matcher(raw).replaceAll("");
+                int width = 0;
+                for (int i = 0; i < plain.length(); i++) {
+                    char c = plain.charAt(i);
+                    width += (c >= 0x4E00 && c <= 0x9FFF) || (c >= 0x3000 && c <= 0x303F) ? 2 : 1;
+                }
+                check(width <= budget, code + " 的按钮文案过宽，会压到相邻按钮上："
+                        + key + " = " + plain + "（" + width + " > " + budget + "）");
+            }
+        }
+    }
+
+    /**
+     * 六种面额必须全都待在快捷栏里。
+     *
+     * <p>21 点曾经在手上放了五件功能道具，于是一元和五元被挤进背包——补零头最常用的两枚
+     * 恰恰摸不到。这里把「保留格 + 面额数 ≤ 快捷栏」这条算术关系钉死。
+     */
+    private static void testChipsFitHotbar() {
+        int denominations = PokerChips.denominations().size();
+        int spare = io.github.xingguanglang.casinotables.poker.CasinoChipInventory.maxReservedForHotbar();
+        check(spare == io.github.xingguanglang.casinotables.poker.CasinoChipInventory.HOTBAR_SIZE
+                        - denominations,
+                "可保留格数应等于快捷栏减去面额数");
+        // 21 点留两格（最低注、确认下注），必须还放得下全部面额。
+        check(2 <= spare, "留给功能道具的格子太多，最小面额会被挤出快捷栏：面额 " + denominations
+                + " 种，最多只能保留 " + spare + " 格");
     }
 
     private static void testPoker() {

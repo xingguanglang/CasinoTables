@@ -32,8 +32,14 @@ import java.util.UUID;
 
 final class BlackjackArena {
     static final String ENTITY_TAG = io.github.xingguanglang.casinotables.arena.ArenaTags.BLACKJACK_ENTITY;
-    /** 快捷栏前五格是按钮，实体筹码从第六格开始，保证手里能直接拿到筹码。 */
-    private static final int RESERVED_SLOTS = 5;
+    /**
+     * 快捷栏前几格留给功能道具，筹码从后面接着排。
+     *
+     * <p>只能留两格。快捷栏一共九格，筹码有六种面额，留三格以上最小的那一两枚就会被挤进背包——
+     * 而一元和五元恰恰是补零头最常用的。要牌、停牌、收回、双倍、分牌、保险、离桌全都在
+     * 座位旁的实体按钮上，不必再占手上的位置。
+     */
+    private static final int RESERVED_SLOTS = 2;
     private static final int ROOM_X = 20;
     private static final int ROOM_Z = 18;
     private static final int[][] SEAT = {
@@ -48,6 +54,9 @@ final class BlackjackArena {
             {{-18, 3}, {-18, 4}, {-18, 5}, {-18, 6}, {-18, 7}, {-18, 8}, {-18, 9}, {-18, 10}, {-18, 11}, {-18, 12}},
             {{-18, -12}, {-18, -11}, {-18, -10}, {-18, -9}, {-18, -8}, {-18, -7}, {-18, -6}, {-18, -5}, {-18, -4}, {-18, -3}}
     };
+    /** 实体筹码堆在放置台上方，和 inBetZone 接受的高度范围对齐。 */
+    private static final int CHIP_BASE_DY = 2;
+    private static final int CHIP_PILE_LAYERS = 3;
     /** 每个座位面前牌桌上的 3×3 下注区，玩家把实体筹码放进去决定注额。 */
     private static final int[][] BET_ZONE = {
             {4, 7}, {9, -4}, {9, 4}, {-4, 7}, {-9, 4}, {-9, -4}
@@ -281,6 +290,9 @@ final class BlackjackArena {
     }
 
     void sync(BlackjackGame.View view) {
+        for (int side = 0; side < BET_ZONE.length; side++) {
+            renderPendingBet(side, side < view.pending().length ? view.pending()[side] : 0);
+        }
         StringBuilder center = new StringBuilder(Messages.msg("blackjack.hologram.title",
                 "brand", plugin.brand(), "hand", view.handNumber())).append('\n');
         if (view.phase() != null) center.append(view.phase());
@@ -346,11 +358,8 @@ final class BlackjackArena {
                     Messages.msg("blackjack.item.bet-min.note")));
             ensureItem(player, 1, Items.item(Material.LIME_DYE, Messages.msg("blackjack.item.bet-confirm.name"),
                     betting ? Messages.msg("blackjack.item.bet-confirm.lore") : bettingOnly));
-            ensureItem(player, 2, Items.item(Material.ORANGE_DYE, Messages.msg("blackjack.item.bet-reclaim.name"),
-                    Messages.msg("blackjack.item.bet-reclaim.lore")));
-            ensureItem(player, 3, Items.item(Material.FEATHER, Messages.msg("blackjack.item.hit.name")));
-            ensureItem(player, 4, Items.item(Material.SHIELD, Messages.msg("blackjack.item.stand.name")));
-            // 双倍、分牌、保险、离桌都在座位旁的实体按钮上，避免占用筹码栏。
+            // 收回、要牌、停牌、双倍、分牌、保险、离桌一律走座位旁的实体按钮。
+            // 手上只留最低注和确认下注这两件，剩下七格全部让给六种面额的筹码。
             chips.sync(player, side, Math.max(0, view.stack()[side] - view.pending()[side]));
         }
     }
@@ -372,6 +381,38 @@ final class BlackjackArena {
                 boolean center = dx == 0 && dz == 0;
                 set(baseX + dx, 1, baseZ + dz, center ? style.palette().floorTrim()
                         : active ? style.palette().zoneActive() : idle);
+            }
+        }
+    }
+
+    /**
+     * 把该座位待确认的注额摆成实体筹码，就堆在他自己面前的放置台上。
+     *
+     * <p>21 点不是公共池，每个人的注只跟自己有关，所以不像德州那样往中间归堆。
+     * 数量按 breakdown 实时合并成尽可能大的面额——放十枚一元进去会自动变成两枚五元，
+     * 和德州手里的筹码是同一套合并规则。
+     */
+    private void renderPendingBet(int side, int amount) {
+        if (side < 0 || side >= BET_ZONE.length) return;
+        int baseX = BET_ZONE[side][0];
+        int baseZ = BET_ZONE[side][1];
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                for (int dy = CHIP_BASE_DY; dy < CHIP_BASE_DY + CHIP_PILE_LAYERS; dy++) {
+                    set(baseX + dx, dy, baseZ + dz, Material.AIR);
+                }
+            }
+        }
+        if (amount <= 0) return;
+        int position = 0;
+        int capacity = 9 * CHIP_PILE_LAYERS;
+        for (Map.Entry<PokerChips.Denomination, Integer> entry
+                : PokerChips.breakdown(amount).entrySet()) {
+            for (int count = 0; count < entry.getValue() && position < capacity; count++, position++) {
+                int layer = position / 9;
+                int within = position % 9;
+                set(baseX - 1 + within % 3, CHIP_BASE_DY + layer, baseZ - 1 + within / 3,
+                        entry.getKey().material());
             }
         }
     }
@@ -433,6 +474,17 @@ final class BlackjackArena {
         renderPot(wagered);
     }
 
+    /** 发牌前的落雷，砸在收牌那个座位上。 */
+    void lightningSeat(int side) {
+        if (side < 0 || side >= players.length) return;
+        world.strikeLightningEffect(seat(side));
+    }
+
+    /** 荷官自己补牌时的落雷。 */
+    void lightningDealer() {
+        world.strikeLightningEffect(new Location(world, centerX + 0.5, y + 2.0, -14.5));
+    }
+
     void celebrate(List<UUID> winners) {
         for (UUID id : winners) {
             Player player = plugin.getServer().getPlayer(id);
@@ -466,7 +518,10 @@ final class BlackjackArena {
         PlayerSnapshot snapshot = PlayerSnapshot.capture(player);
         snapshots.put(player.getUniqueId(), snapshot);
         snapshot.prepare(player);
-        player.setGameMode(GameMode.ADVENTURE);
+        // 必须是生存模式。冒险模式放不下方块，BlockPlaceEvent 根本不会触发，
+        // 于是「把筹码丢进下注区」这条主要下注方式整个是死的，只剩最低注按钮能用。
+        // 德州一直用的就是生存模式；场地方块由 GameListener 的 onBreak 保护，不会被挖。
+        player.setGameMode(GameMode.SURVIVAL);
         player.teleport(seat(side));
         Text.send(player, Messages.msg("blackjack.enter"));
     }

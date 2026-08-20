@@ -21,4 +21,7 @@ public enum BlackjackAction {
     BlackjackAction(String key) { this.key = key; }
 
     public String display() { return Messages.msg(key); }
+
+    /** 供构建期自检核对文案宽度。 */
+    public String key() { return key; }
 }

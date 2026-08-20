@@ -11,7 +11,7 @@
 prefix: "<gray>[<gradient:#55ffff:#aa55ff>Casino</gradient><gray>] "
 
 help:
-  header: "<gradient:#55ffff:#aa55ff>—— {brand} Casino Tables ——</gradient>"
+  header: "<gradient:#55ffff:#aa55ff>—— {brand} ——</gradient>"
   lines:
     - "<yellow>/casino</yellow> <gray>- open the main menu, or show controls for your current game"
     - "<yellow>/casino gui | chat</yellow> <gray>- switch between the inventory menu and the chat menu"
@@ -192,13 +192,13 @@ blackjack:
     topped-to-minimum: "<green>Bet topped up to the {amount} minimum. Hit confirm bet to lock it in.</green>"
     under-minimum: "<red>The minimum bet is {min}. Add more chips, or use the min bet button.</red>"
   button:
-    bet-confirm: "<yellow><bold>Confirm Bet</bold></yellow>"
+    bet-confirm: "<yellow><bold>Confirm</bold></yellow>"
     bet-min: "<yellow><bold>Min Bet</bold></yellow>"
     bet-reclaim: "<red><bold>Take Back</bold></red>"
     double: "<gold><bold>Double</bold></gold>"
     hit: "<aqua><bold>Hit</bold></aqua>"
     insurance: "<dark_aqua><bold>Insurance</bold></dark_aqua>"
-    leave-after-hand: "<gray><bold>Leave After Hand</bold></gray>"
+    leave-after-hand: "<gray><bold>Last Hand</bold></gray>"
     split: "<light_purple><bold>Split</bold></light_purple>"
     stand: "<gold><bold>Stand</bold></gold>"
     top-up: "<green><bold>ATM Top Up</bold></green>"
@@ -224,6 +224,8 @@ blackjack:
     reveal: "<gold><bold>Dealer reveals:</bold></gold> {cards} {total}"
     showing: "<gray>Showing {value}</gray>"
     upcard: "<gold><bold>Dealer shows:</bold></gold> {card} <dark_gray><bold>[ face down ]</bold></dark_gray> <gray>(showing {value})</gray>"
+  draw:
+    in-progress: "<gray>A card is on its way; wait for it to land.</gray>"
   double:
     bust: "<red>Busted on the double.</red>"
     done: "<gold><bold>Doubled down to {amount}.</bold></gold> {card} <gray>→ {hand}</gray>"
@@ -298,14 +300,7 @@ blackjack:
       lore: "<gray>Right-click to top your bet up to the {min} minimum</gray>"
       name: "<yellow><bold>Min Bet</bold></yellow>"
       note: "<dark_gray>You still have to confirm the bet afterwards</dark_gray>"
-    bet-reclaim:
-      lore: "<gray>Return unconfirmed chips from the betting box to your inventory</gray>"
-      name: "<red><bold>Take Back Chips</bold></red>"
     betting-only: "<dark_gray>Only usable while betting is open</dark_gray>"
-    hit:
-      name: "<aqua><bold>Hit</bold></aqua>"
-    stand:
-      name: "<gold><bold>Stand</bold></gold>"
   join:
     announce: "<green>{player} joined the table ({count}/{max}).</green>"
     announce-waiting: "<green>{player} joined the table ({count}/{max}).</green> <gray>They watch this hand and bet from the next one.</gray>"
@@ -371,6 +366,16 @@ blackjack:
     done: "<green>Topped up {amount} in chips.</green>"
     failed: "<red>The top-up could not be charged.</red>"
     no-balance: "<red>Your balance is too low to top up.</red>"
+  title:
+    bet-locked: "<green>Bet locked in — waiting for the other seats</green>"
+    dealer-turn: "<gold>The dealer is playing out the hand</gold>"
+    dealing: "<aqua>A card is on its way…</aqua>"
+    insurance: "<dark_aqua>Insurance? Answer at your seat buttons</dark_aqua>"
+    next-hand: "<gray>Next hand starting</gray>"
+    place-bet: "<yellow>Place your bet — drop chips in the box, minimum {min}</yellow>"
+    waiting: "<gray>Waiting for {player}</gray>"
+    waiting-others: "<gray>Waiting for the other seats</gray>"
+    your-turn: "<green><bold>Your turn — hit or stand</bold></green>"
   turn:
     dealer-upcard: "<gold>Dealer shows</gold> {card} <gray>({value})</gray>"
     not-yours: "<red>It is not your turn yet.</red>"
@@ -660,7 +665,7 @@ menu:
       hover: "2-4 players, current wager {bet}"
       label: "<aqua><bold>[Create a Ludo room]</bold></aqua>"
     footer: "<gray>This is only the start menu; once a game begins you use titles, holograms and buttons on the table, so the GUI never covers your screen.</gray>"
-    header: "<gradient:#55ffff:#aa55ff>—— {brand} Casino Tables (chat menu) ——</gradient>"
+    header: "<gradient:#55ffff:#aa55ff>—— {brand} · chat menu ——</gradient>"
     invitepanel:
       hover: "The panel refreshes after each invite so you can keep going"
       label: "<aqua>[Open the invite panel]</aqua>"
@@ -799,7 +804,7 @@ menu:
       lore-bots: "<gray>Start any time; bots fill the remaining seats</gray>"
       lore-minimum: "<gray>Needs at least two players</gray>"
       name: "<green><bold>Start the game</bold></green>"
-    title: "<dark_aqua>{brand} Casino Tables</dark_aqua>"
+    title: "<dark_aqua>{brand}</dark_aqua>"
     wager:
       lore-current: "<white>Current:</white> {bet}"
       lore-range: "<gray>Between 1 and 10000</gray>"
@@ -901,10 +906,10 @@ poker:
       label: "<yellow><bold>{chip} × {count}</bold></yellow>"
     control:
       all-in: "<light_purple><bold>ALL IN</bold></light_purple>"
-      call: "<yellow><bold>Match Call</bold></yellow>"
-      confirm: "<green><bold>Confirm Bet / Check</bold></green>"
+      call: "<yellow><bold>Call</bold></yellow>"
+      confirm: "<green><bold>Confirm</bold></green>"
       fold: "<red><bold>Fold</bold></red>"
-      withdraw: "<aqua><bold>Take Chips Back</bold></aqua>"
+      withdraw: "<aqua><bold>Reclaim</bold></aqua>"
     dealer:
       name: "<gold><bold>◆ {brand} Royal Dealer ◆</bold></gold>"
     exit:

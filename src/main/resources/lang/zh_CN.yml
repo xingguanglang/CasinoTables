@@ -201,7 +201,7 @@ blackjack:
     leave-after-hand: "<gray><bold>本手后离桌</bold></gray>"
     split: "<light_purple><bold>分牌</bold></light_purple>"
     stand: "<gold><bold>停牌</bold></gold>"
-    top-up: "<green><bold>ATM 补充筹码</bold></green>"
+    top-up: "<green><bold>ATM 补码</bold></green>"
   card:
     face-down: "<dark_gray><bold>[ 背面 ]</bold></dark_gray>"
   cashout:
@@ -224,6 +224,8 @@ blackjack:
     reveal: "<gold><bold>荷官亮牌：</bold></gold>{cards} {total}"
     showing: "<gray>明牌 {value}</gray>"
     upcard: "<gold><bold>荷官明牌：</bold></gold>{card} <dark_gray><bold>[ 背面 ]</bold></dark_gray> <gray>（明牌 {value} 点）</gray>"
+  draw:
+    in-progress: "<gray>牌还在发放途中，等它落定。</gray>"
   double:
     bust: "<red>双倍后爆牌。</red>"
     done: "<gold><bold>双倍下注至 {amount}。</bold></gold> {card} <gray>→ {hand}</gray>"
@@ -298,14 +300,7 @@ blackjack:
       lore: "<gray>右键直接补足最低下注 {min}</gray>"
       name: "<yellow><bold>一键最低注</bold></yellow>"
       note: "<dark_gray>补齐后仍需按确认下注</dark_gray>"
-    bet-reclaim:
-      lore: "<gray>把下注区里尚未确认的筹码收回背包</gray>"
-      name: "<red><bold>收回筹码</bold></red>"
     betting-only: "<dark_gray>仅下注阶段可用</dark_gray>"
-    hit:
-      name: "<aqua><bold>要牌</bold></aqua>"
-    stand:
-      name: "<gold><bold>停牌</bold></gold>"
   join:
     announce: "<green>{player} 加入了牌桌（{count}/{max}）。</green>"
     announce-waiting: "<green>{player} 加入了牌桌（{count}/{max}）。</green> <gray>本手旁观，从下一手开始下注。</gray>"
@@ -371,6 +366,16 @@ blackjack:
     done: "<green>已补充 {amount} 筹码。</green>"
     failed: "<red>补码扣款失败。</red>"
     no-balance: "<red>钱包余额不足，无法补码。</red>"
+  title:
+    bet-locked: "<green>下注已锁定，等待其他座位</green>"
+    dealer-turn: "<gold>荷官正在行牌</gold>"
+    dealing: "<aqua>发牌中…</aqua>"
+    insurance: "<dark_aqua>是否买保险？在座位按钮上选择</dark_aqua>"
+    next-hand: "<gray>下一手即将开始</gray>"
+    place-bet: "<yellow>请下注——把筹码丢进下注区，最低 {min}</yellow>"
+    waiting: "<gray>等待 {player}</gray>"
+    waiting-others: "<gray>等待其他座位</gray>"
+    your-turn: "<green><bold>轮到你了——要牌还是停牌</bold></green>"
   turn:
     dealer-upcard: "<gold>荷官明牌 </gold>{card} <gray>({value})</gray>"
     not-yours: "<red>还没轮到你行动。</red>"
@@ -901,10 +906,10 @@ poker:
       label: "<yellow><bold>{chip} × {count}</bold></yellow>"
     control:
       all-in: "<light_purple><bold>ALL IN</bold></light_purple>"
-      call: "<yellow><bold>补齐跟注</bold></yellow>"
-      confirm: "<green><bold>确认下注/过牌</bold></green>"
+      call: "<yellow><bold>跟注</bold></yellow>"
+      confirm: "<green><bold>确认</bold></green>"
       fold: "<red><bold>弃牌</bold></red>"
-      withdraw: "<aqua><bold>收回筹码</bold></aqua>"
+      withdraw: "<aqua><bold>收回</bold></aqua>"
     dealer:
       name: "<gold><bold>◆ {brand} 皇家荷官 ◆</bold></gold>"
     exit:

@@ -26,9 +26,23 @@ public final class CasinoChipInventory {
     private final Map<Integer, Boolean> compact = new LinkedHashMap<>();
     private final Map<Integer, Boolean> dirty = new LinkedHashMap<>();
 
+    /** 快捷栏格数。筹码排在保留格之后，超出这个数就落进背包，手上拿不到了。 */
+    public static final int HOTBAR_SIZE = 9;
+
+    /** 保留格最多能占几格，才不至于把某个面额挤出快捷栏。 */
+    public static int maxReservedForHotbar() {
+        return HOTBAR_SIZE - PokerChips.denominations().size();
+    }
+
     public CasinoChipInventory(CasinoTablesPlugin plugin, int reservedSlots) {
         this.plugin = plugin;
         this.reservedSlots = Math.max(0, Math.min(35, reservedSlots));
+        if (this.reservedSlots > maxReservedForHotbar()) {
+            // 不致命，但玩家会发现最小面额摸不到——21 点曾经留了五格，一元和五元直接进了背包。
+            plugin.getLogger().warning("Reserved " + this.reservedSlots + " hotbar slots, but only "
+                    + maxReservedForHotbar() + " can be spared before the smallest chips are pushed"
+                    + " out of the hotbar and become unreachable.");
+        }
         this.chipSlots = 36 - this.reservedSlots;
     }
 

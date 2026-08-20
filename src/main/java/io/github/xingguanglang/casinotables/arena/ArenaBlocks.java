@@ -21,7 +21,17 @@ public final class ArenaBlocks {
      */
     public static void set(World world, int x, int y, int z, Material material) {
         Block block = world.getBlockAt(x, y, z);
+        if (block.getType() == material) {
+            // 已经是要的方块就别再写一次。牌桌每秒重画一遍下注区和筹码堆，
+            // 绝大多数格子每次都没变；无脑 setType 会白白刷一堆方块更新给客户端。
+            ensurePersistentLeaves(block);
+            return;
+        }
         block.setType(material, false);
+        ensurePersistentLeaves(block);
+    }
+
+    private static void ensurePersistentLeaves(Block block) {
         BlockData data = block.getBlockData();
         if (data instanceof Leaves leaves && !leaves.isPersistent()) {
             leaves.setPersistent(true);

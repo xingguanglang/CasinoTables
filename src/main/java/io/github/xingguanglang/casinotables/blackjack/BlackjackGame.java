@@ -9,11 +9,13 @@ import io.github.xingguanglang.casinotables.poker.PokerArenaStyle;
 import io.github.xingguanglang.casinotables.poker.PokerCard;
 import io.github.xingguanglang.casinotables.poker.PokerChips;
 import io.github.xingguanglang.casinotables.poker.PokerMoney;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,6 +78,21 @@ final class BlackjackGame {
     private int handNumber;
     private long deadline;
     private long resumeAt;
+    /** 玩家要牌到亮牌之间的停顿。 */
+    private static final long HIT_DRAW_MILLIS = 3000L;
+    /** 荷官每补一张之间的停顿，比玩家慢一点，让全桌看清。 */
+    private static final long DEALER_DRAW_MILLIS = 5000L;
+    /**
+     * 一张正在发出去的牌：先悬一会儿，再落雷，最后才亮出来。
+     *
+     * <p>用时间戳而不是 Bukkit 任务，和这个类其余部分保持一致——牌局一旦结束
+     * tick() 直接返回，不会有回调在牌桌拆掉之后才醒过来。
+     */
+    private enum DrawKind { HIT, DOUBLE, DEALER }
+
+    private record PendingDraw(int side, DrawKind kind, long revealAt) { }
+
+    private PendingDraw pendingDraw;
     private boolean ended;
     private final long startedAt = System.currentTimeMillis();
 
@@ -332,8 +349,10 @@ final class BlackjackGame {
     private void dealerTurn() {
         phase = Phase.DEALER;
         actor = -1;
+        // 翻暗牌本身就是一个节点，和补牌一样给一道雷。
         holeRevealed = true;
         arena.syncDealer(dealer, true);
+        arena.lightningDealer();
         boolean anyLive = false;
         for (int side = 0; side < MAX_SEATS; side++) {
             if (!inHand[side]) continue;
@@ -343,16 +362,14 @@ final class BlackjackGame {
         }
         broadcast(Messages.msg("blackjack.dealer.reveal",
                 "cards", cardsText(dealer), "total", BlackjackHand.describe(dealer)));
-        if (anyLive) {
-            while (BlackjackHand.dealerMustHit(dealer)) {
-                dealer.add(draw());
-                broadcast(Messages.msg("blackjack.dealer.draw",
-                        "card", BlackjackArena.cardText(dealer.getLast()),
-                        "total", BlackjackHand.describe(dealer)));
-            }
-        } else {
-            broadcast(Messages.msg("blackjack.dealer.no-draw"));
+        if (anyLive && BlackjackHand.dealerMustHit(dealer)) {
+            // 一张一张地补，每张之间停一下再落雷，让全桌看得清荷官在做什么。
+            // 后续几张由 revealPendingDraw() 自己接着排，直到不用再补。
+            arena.syncDealer(dealer, true);
+            beginDraw(-1, DrawKind.DEALER, DEALER_DRAW_MILLIS);
+            return;
         }
+        if (!anyLive) broadcast(Messages.msg("blackjack.dealer.no-draw"));
         arena.syncDealer(dealer, true);
         dealerTurnDone();
     }
@@ -539,6 +556,12 @@ final class BlackjackGame {
         if (ended) return false;
         int side = side(player.getUniqueId());
         if (side < 0 || !seated[side]) return false;
+        if (pendingDraw != null) {
+            // 有牌在发放途中就锁住所有座位操作。否则要牌之后那几秒里再按停牌，
+            // advance() 会先把行动权交给下一位，等牌落下来就发进了错误的那手。
+            Text.send(player, Messages.msg("blackjack.draw.in-progress"));
+            return true;
+        }
         switch (action) {
             case BET_MIN -> betMinimum(side);
             case BET_RECLAIM -> reclaimBet(side);
@@ -658,12 +681,61 @@ final class BlackjackGame {
 
     private void hit(int side) {
         if (!isActor(side)) return;
+        if (pendingDraw != null) return;                 // 一张还在路上，别再要
         BlackjackSeatHand hand = current(side);
         if (hand == null || !hand.canHit()) {
             send(side, Messages.msg("blackjack.hit.not-allowed"));
             return;
         }
+        beginDraw(side, DrawKind.HIT, HIT_DRAW_MILLIS);
+    }
+
+    /** 把一张牌挂起，等 tick() 到点了再落雷亮牌。 */
+    private void beginDraw(int side, DrawKind kind, long delay) {
+        long now = System.currentTimeMillis();
+        pendingDraw = new PendingDraw(side, kind, now + delay);
+        // 动画期间不能让行动倒计时把人判超时。
+        if (deadline > 0 && deadline < pendingDraw.revealAt() + 1000L) {
+            deadline = pendingDraw.revealAt() + 1000L;
+        }
+        sync();
+    }
+
+    /** 到点了：落雷，然后这张牌才真正发出来。 */
+    private void revealPendingDraw() {
+        PendingDraw pending = pendingDraw;
+        pendingDraw = null;
+        if (pending == null || ended) return;
+        if (pending.kind() == DrawKind.DEALER) {
+            // 先把牌放进去并刷新显示，再落雷，全在同一 tick 内发出去。
+            // 反过来写的话全息要等下一次 sync 才更新，最多晚一秒，看着就成了「先翻牌后打雷」。
+            dealer.add(draw());
+            arena.syncDealer(dealer, true);
+            arena.lightningDealer();
+            broadcast(Messages.msg("blackjack.dealer.draw",
+                    "card", BlackjackArena.cardText(dealer.getLast()),
+                    "total", BlackjackHand.describe(dealer)));
+            if (BlackjackHand.dealerMustHit(dealer)) {
+                beginDraw(-1, DrawKind.DEALER, DEALER_DRAW_MILLIS);
+            } else {
+                dealerTurnDone();
+            }
+            return;
+        }
+        int side = pending.side();
+        BlackjackSeatHand hand = current(side);
+        if (hand == null) { advance(); return; }
         hand.add(draw());
+        sync();                       // 牌面先到，紧接着才是雷，同一 tick 一起送出
+        arena.lightningSeat(side);
+        if (pending.kind() == DrawKind.DOUBLE) {
+            hand.finish();
+            send(side, Messages.msg("blackjack.double.done", "amount", hand.bet(),
+                    "card", BlackjackArena.cardText(hand.cards().getLast()), "hand", handSummary(hand)));
+            if (hand.bust()) send(side, Messages.msg("blackjack.double.bust"));
+            advance();
+            return;
+        }
         send(side, Messages.msg("blackjack.hit.dealt",
                 "card", BlackjackArena.cardText(hand.cards().getLast()), "hand", handSummary(hand)));
         if (hand.bust()) {
@@ -695,12 +767,9 @@ final class BlackjackGame {
         stack[side] -= hand.bet();
         hand.bet(hand.bet() * 2);
         hand.doubled(true);
-        hand.add(draw());
-        hand.finish();
-        send(side, Messages.msg("blackjack.double.done", "amount", hand.bet(),
-                "card", BlackjackArena.cardText(hand.cards().getLast()), "hand", handSummary(hand)));
-        if (hand.bust()) send(side, Messages.msg("blackjack.double.bust"));
-        advance();
+        // 加注立刻生效，但那张牌和要牌走同一套节奏——否则双倍瞬间出牌、
+        // 要牌却要等三秒落雷，看起来像坏了。
+        beginDraw(side, DrawKind.DOUBLE, HIT_DRAW_MILLIS);
     }
 
     private void split(int side) {
@@ -820,6 +889,11 @@ final class BlackjackGame {
     void tick() {
         if (ended) return;
         long now = System.currentTimeMillis();
+        if (pendingDraw != null) {
+            // 有牌在路上时其他计时一律让路，免得动画中途被超时逻辑打断。
+            if (now >= pendingDraw.revealAt()) revealPendingDraw(); else sync();
+            return;
+        }
         if (phase == Phase.SETTLED) {
             if (resumeAt > 0 && now >= resumeAt) {
                 resumeAt = 0;
@@ -960,8 +1034,62 @@ final class BlackjackGame {
 
     // ---------------------------------------------------------------- 展示
 
+    /**
+     * 屏幕正中的大字提示：现在轮到什么阶段、该你做什么、还剩几秒。
+     *
+     * <p>21 点原本只有聊天框和全息，玩家低头看手牌时很容易错过自己的回合。
+     * 做法和德州的 showCountdown 一致：大字是秒数，副标题说明该干什么。
+     */
+    private void showTitles() {
+        if (arena == null || ended) return;
+        long now = System.currentTimeMillis();
+        Title.Times times = Title.Times.times(Duration.ZERO, Duration.ofMillis(1100), Duration.ZERO);
+        for (int side = 0; side < MAX_SEATS; side++) {
+            if (!seated[side]) continue;
+            Player player = Bukkit.getPlayer(players[side]);
+            if (player == null || !arena.protects(players[side])) continue;
+
+            String subtitle;
+            long target;
+            if (pendingDraw != null) {
+                subtitle = Messages.msg("blackjack.title.dealing");
+                target = pendingDraw.revealAt();
+            } else if (phase == Phase.DEALER) {
+                subtitle = Messages.msg("blackjack.title.dealer-turn");
+                target = 0;
+            } else if (phase == Phase.SETTLED) {
+                subtitle = Messages.msg("blackjack.title.next-hand");
+                target = resumeAt;
+            } else if (phase == Phase.BETTING) {
+                subtitle = betConfirmed[side] ? Messages.msg("blackjack.title.bet-locked")
+                        : Messages.msg("blackjack.title.place-bet", "min", minBet);
+                target = deadline;
+            } else if (phase == Phase.INSURANCE) {
+                subtitle = insuranceAnswered[side] ? Messages.msg("blackjack.title.waiting-others")
+                        : Messages.msg("blackjack.title.insurance");
+                target = deadline;
+            } else if (side == actor) {
+                subtitle = Messages.msg("blackjack.title.your-turn");
+                target = deadline;
+            } else {
+                subtitle = actor >= 0 ? Messages.msg("blackjack.title.waiting", "player", names[actor])
+                        : Messages.msg("blackjack.title.waiting-others");
+                target = deadline;
+            }
+
+            String heading = "";
+            if (target > now) {
+                int seconds = (int) Math.max(1, Math.ceil((target - now) / 1000.0));
+                String color = seconds <= 5 ? "<red>" : seconds <= 10 ? "<gold>" : "<green>";
+                heading = color + "<bold>" + seconds + "</bold>";
+            }
+            player.showTitle(Title.title(Text.parse(heading), Text.parse(subtitle), times));
+        }
+    }
+
     private void sync() {
         if (arena == null) return;
+        showTitles();
         int seconds = (int) Math.max(0, (deadline - System.currentTimeMillis() + 999) / 1000);
         if (phase == Phase.SETTLED) seconds = (int) Math.max(0, (resumeAt - System.currentTimeMillis() + 999) / 1000);
         String[] handText = new String[MAX_SEATS];
