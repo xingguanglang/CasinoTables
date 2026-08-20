@@ -65,7 +65,7 @@ if ($tests) {
     # Language files must be on the test classpath so the key-parity test can read them.
     $runCp = $testCp + ';' + $testClasses + ';' + (Join-Path $root 'src/main/resources')
     # Pass the project root so the self-test can scan the sources for message keys.
-    & java -cp $runCp io.github.casinotables.tests.SelfTest $root
+    & java -cp $runCp io.github.xingguanglang.casinotables.tests.SelfTest $root
     if ($LASTEXITCODE -ne 0) { throw "Self-tests failed ($LASTEXITCODE)" }
 }
 Remove-Item $argsFile -ErrorAction SilentlyContinue
