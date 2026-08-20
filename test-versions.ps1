@@ -90,27 +90,49 @@ foreach ($version in $Versions) {
         $process.StartInfo = $info
         if (-not $process.Start()) { throw 'Failed to start Paper' }
 
+        # Read BOTH pipes asynchronously. Draining only stdout deadlocks: once the
+        # stderr pipe buffer fills, the server blocks on its next stderr write, stops
+        # producing stdout, and a blocking ReadLine() waits forever - the deadline below
+        # never gets a chance to run. That hung a run for 37 minutes on 1.21.9.
+        $lines = New-Object Collections.Concurrent.ConcurrentQueue[string]
+        $pump = {
+            if ($null -ne $EventArgs.Data) { $Event.MessageData.Enqueue($EventArgs.Data) }
+        }
+        $outSub = Register-ObjectEvent $process OutputDataReceived -MessageData $lines -Action $pump
+        $errSub = Register-ObjectEvent $process ErrorDataReceived -MessageData $lines -Action $pump
+        $process.BeginOutputReadLine()
+        $process.BeginErrorReadLine()
+
         $log = New-Object Collections.Generic.List[string]
         $done = $false
+        $line = $null
         $deadline = (Get-Date).AddMinutes(8)
-        while (-not $process.HasExited -and (Get-Date) -lt $deadline) {
-            $line = $process.StandardOutput.ReadLine()
-            if ($null -eq $line) { break }
-            $log.Add($line)
-            if ($line -match 'Done \(') { $done = $true; break }
+        while (-not $done -and (Get-Date) -lt $deadline) {
+            if ($lines.TryDequeue([ref] $line)) {
+                $log.Add($line)
+                if ($line -match 'Done \(') { $done = $true }
+            } elseif ($process.HasExited) {
+                break
+            } else {
+                Start-Sleep -Milliseconds 100
+            }
         }
 
         if ($done) {
             $bytes = [Text.Encoding]::UTF8.GetBytes("version CasinoTables`nstop`n")
             $process.StandardInput.BaseStream.Write($bytes, 0, $bytes.Length)
             $process.StandardInput.BaseStream.Flush()
-            $rest = $process.StandardOutput.ReadToEnd()
-            if ($rest) { $log.AddRange([string[]]($rest -split "`r?`n")) }
             $process.WaitForExit(60000) | Out-Null
-        } else {
-            if (-not $process.HasExited) { $process.Kill() }
-            $log.AddRange([string[]](($process.StandardError.ReadToEnd()) -split "`r?`n"))
+        } elseif (-not $process.HasExited) {
+            $process.Kill()
+            $process.WaitForExit(15000) | Out-Null
         }
+
+        # Let the async handlers flush whatever arrived during shutdown, then collect it.
+        Start-Sleep -Milliseconds 400
+        while ($lines.TryDequeue([ref] $line)) { $log.Add($line) }
+        Unregister-Event -SourceIdentifier $outSub.Name -ErrorAction SilentlyContinue
+        Unregister-Event -SourceIdentifier $errSub.Name -ErrorAction SilentlyContinue
 
         $text = $log -join "`n"
         $enabled = $text -match '\[CasinoTables\] Enabling'
