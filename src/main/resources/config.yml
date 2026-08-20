@@ -71,9 +71,10 @@ blackjack:
   next-hand-delay-seconds: 8
 
 casino-bots:
-  # Texas Hold'em tables always fill to six seats with local-algorithm bots.
+  # Texas Hold'em tables always fill to six seats with local-algorithm bots;
+  # a real player joining bumps a random bot. There is no switch to turn this
+  # off, because a Hold'em table with one human and no opponents cannot deal.
   # Bots never touch Vault: their chips are virtual and refill every hand.
-  enabled: true
   think-min-seconds: 2
   think-max-seconds: 5
   # Monte Carlo samples; clamped to 40-600. Higher is sharper but costs more CPU.

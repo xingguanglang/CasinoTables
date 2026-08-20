@@ -87,7 +87,7 @@ public final class BlackjackManager {
 
     public List<ActiveRoom> activeRooms() {
         return games.stream().filter(game -> !game.ended())
-                .map(game -> new ActiveRoom(game.hostId(), game.nameAt(0), GameType.BLACKJACK,
+                .map(game -> new ActiveRoom(game.hostId(), game.hostName(), GameType.BLACKJACK,
                         game.playerCount(), BlackjackGame.MAX_SEATS, true,
                         Messages.msg("blackjack.room.description", "hand", game.handNumber())))
                 .toList();

@@ -21,7 +21,7 @@ $jar = Join-Path $root 'CasinoTables.jar'
 
 foreach ($tool in 'javac', 'java', 'jar') {
     if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {
-        throw "$tool not found on PATH. Install JDK 25 or newer and try again."
+        throw "$tool not found on PATH. Install JDK 21 or newer and try again."
     }
 }
 if (-not (Test-Path $libraries)) { throw "Dependency folder not found: $libraries" }

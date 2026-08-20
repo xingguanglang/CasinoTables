@@ -34,6 +34,7 @@ public final class SelfTest {
         testPoker();
         testPokerChips();
         testPokerMoney();
+        testContestedPot();
         testPokerArenaStyles();
         testFlightRules();
         testFlightControls();
@@ -113,6 +114,32 @@ public final class SelfTest {
                 "补码上限必须计入已经锁定到下一手的筹码");
         check(PokerMoney.topUpRoom(200, 120, 50, 20, false) == 60,
                 "结算后不得重复计算已经归入底池的本手下注");
+    }
+
+    /**
+     * 抽水只能落在被跟过的那部分底池上。这条规则以前只在摊牌路径成立，
+     * 弃牌收底把赢家自己没被跟的注也抽了，等于凭空罚钱——锁死两条路径同用一套算法。
+     */
+    private static void testContestedPot() {
+        // 全员弃牌：UTG 加到 500 无人跟，只有 0-10、10-20 两层有多人出钱。
+        check(PokerMoney.contestedPot(new int[]{500, 20, 10, 0, 0, 0}) == 50,
+                "无人跟注的超额下注不能计入可抽水底池");
+        // 两家跟到底：整池都被争夺过。
+        check(PokerMoney.contestedPot(new int[]{200, 200, 0, 0, 0, 0}) == 400, "对等跟注应全额可抽水");
+        // 三家，其中一家 all-in 较少：边池仍是被争夺的。
+        check(PokerMoney.contestedPot(new int[]{300, 300, 100, 0, 0, 0}) == 700, "边池应计入可抽水底池");
+        // 只有一个人下注，其余全部弃牌且没投过一分钱。
+        check(PokerMoney.contestedPot(new int[]{80, 0, 0, 0, 0, 0}) == 0, "无人跟注时不得抽水");
+        check(PokerMoney.contestedPot(new int[]{0, 0, 0, 0, 0, 0}) == 0, "空底池不得抽水");
+        // 可抽水部分永远不能超过底池本身。
+        int[][] cases = {{500, 20, 10, 0, 0, 0}, {300, 300, 100, 0, 0, 0}, {7, 7, 7, 3, 0, 0},
+                {1000, 1, 0, 0, 0, 0}, {50, 50, 50, 50, 50, 50}};
+        for (int[] contribution : cases) {
+            int pot = 0;
+            for (int value : contribution) pot += value;
+            int contested = PokerMoney.contestedPot(contribution);
+            check(contested >= 0 && contested <= pot, "可抽水底池必须落在 0 与底池之间：" + contested + "/" + pot);
+        }
     }
 
     private static void testPoker() {
@@ -452,6 +479,30 @@ public final class SelfTest {
      * 装潢名、房型名、玩法名是用枚举名拼出来的键，静态搜索找不到它们，
      * 漏一条语言文件条目在游戏里就是一句 {@code <missing: ...>}。这里逐个取一遍。
      */
+    /** 用枚举名等值拼出来的键。静态搜源码找不到它们，只能在这里列全。 */
+    private static Set<String> computedKeys() {
+        Set<String> keys = new java.util.TreeSet<>();
+        for (PokerArenaStyle style : PokerArenaStyle.values()) {
+            String id = style.name().toLowerCase(java.util.Locale.ROOT);
+            keys.add("decor." + id + ".name");
+            keys.add("decor." + id + ".description");
+        }
+        for (ArenaShape shape : ArenaShape.values()) {
+            String id = shape.name().toLowerCase(java.util.Locale.ROOT);
+            keys.add("shape." + id + ".name");
+            keys.add("shape." + id + ".description");
+        }
+        for (io.github.casinotables.GameType type : io.github.casinotables.GameType.values()) {
+            keys.add("game." + type.name().toLowerCase(java.util.Locale.ROOT) + ".display");
+        }
+        // FlightArena.COLOR_KEYS 和 FlightManager.rankKey() 拼出来的，同样躲开静态搜索。
+        for (String color : List.of("red", "yellow", "blue", "green")) keys.add("flight.color." + color);
+        for (String rank : List.of("first", "second", "third", "other")) {
+            keys.add("flight.result.entry." + rank);
+        }
+        return keys;
+    }
+
     private static void testComputedMessageKeys() {
         List<String> texts = new ArrayList<>();
         for (PokerArenaStyle style : PokerArenaStyle.values()) {
@@ -490,12 +541,17 @@ public final class SelfTest {
                 "Messages[.](?:msg|msgList)[(][ ]*\"[^\"]*\"[ ]*[+]");
 
         Set<String> missing = new java.util.TreeSet<>();
+        Set<String> referenced = new java.util.TreeSet<>();
+        java.util.regex.Pattern keyShaped = java.util.regex.Pattern.compile(
+                "\"([a-z][a-z0-9-]*(?:[.][a-z0-9-]+)+)\"");
         int literals = 0;
         int computedSites = 0;
         try (java.util.stream.Stream<java.nio.file.Path> files =
                      java.nio.file.Files.walk(sourceRoot)) {
             for (java.nio.file.Path file : files.filter(p -> p.toString().endsWith(".java")).toList()) {
                 String text = java.nio.file.Files.readString(file, java.nio.charset.StandardCharsets.UTF_8);
+                java.util.regex.Matcher shaped = keyShaped.matcher(text);
+                while (shaped.find()) referenced.add(shaped.group(1));
                 java.util.regex.Matcher computedMatcher = computed.matcher(text);
                 while (computedMatcher.find()) computedSites++;
                 java.util.regex.Matcher matcher = literal.matcher(text);
@@ -505,6 +561,7 @@ public final class SelfTest {
                     while (after < text.length() && text.charAt(after) == ' ') after++;
                     if (after < text.length() && text.charAt(after) == '+') continue;
                     String key = matcher.group(1);
+                    referenced.add(key);
                     literals++;
                     if (!en.isString(key) && !en.isList(key)) {
                         missing.add(key + "  (" + file.getFileName() + ")");
@@ -519,6 +576,19 @@ public final class SelfTest {
         check(computedSites == COMPUTED_KEY_SITES,
                 "拼接键的调用点从 " + COMPUTED_KEY_SITES + " 变成了 " + computedSites
                         + " 个；新增的那处要补进 testComputedMessageKeys");
+
+        // 反向对账：语言文件里的每一条都必须有人读。
+        // 没有这一条的时候，poker.seat.empty 这种死键能一直躺在服主会去编辑的文件里，
+        // 服主改了半天发现游戏里毫无变化，却不知道为什么。
+        // referenced 是「所有长得像键的字面量」，故意放宽：宁可漏报死键，也不能误杀在用的键。
+        Set<String> reachable = new java.util.TreeSet<>(referenced);
+        reachable.addAll(computedKeys());
+        Set<String> dead = new java.util.TreeSet<>();
+        for (String key : en.getKeys(true)) {
+            if (en.isConfigurationSection(key)) continue;
+            if (!reachable.contains(key)) dead.add(key);
+        }
+        check(dead.isEmpty(), "语言文件里这些键没有任何代码读取，应当删掉或接上：" + dead);
     }
 
     /** 用枚举名拼键的调用点数量，testComputedMessageKeys 覆盖的就是这些。 */

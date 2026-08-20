@@ -72,11 +72,18 @@ public final class LobbyManager {
                         "amount", plugin.economy().format(bet)));
         Text.send(host, Messages.msg(type.usesRealCurrency()
                 ? "lobby.create.hint.real" : "lobby.create.hint.wager"));
-        if (type.usesRealCurrency()) {
-            Text.send(host, Messages.msg(type == GameType.POKER
-                            ? "lobby.create.stakes.poker" : "lobby.create.stakes.blackjack",
+        if (type == GameType.POKER) {
+            Text.send(host, Messages.msg("lobby.create.stakes.poker",
                     "small", blinds[0], "big", blinds[1], "buyin", buyIn,
-                    "decor", pokerArenaStyle.display()));
+                    "decor", pokerArenaStyle.display(), "styles", PokerArenaStyle.count()));
+        } else if (type == GameType.BLACKJACK) {
+            // 21 点不吃盲注，下注上下限来自 config 的 blackjack.min-bet / max-bet。
+            // 以前这里照搬了德州的盲注，房主改了 /casino blinds 却发现桌上毫无变化。
+            int minBet = Math.max(1, plugin.getConfig().getInt("blackjack.min-bet", 10));
+            int maxBet = Math.max(minBet, plugin.getConfig().getInt("blackjack.max-bet", 2000));
+            Text.send(host, Messages.msg("lobby.create.stakes.blackjack",
+                    "min", minBet, "max", maxBet, "buyin", buyIn,
+                    "decor", pokerArenaStyle.display(), "styles", PokerArenaStyle.count()));
         }
         if (type == GameType.FLIGHT) {
             Text.send(host, Messages.msg("lobby.create.pieces", "pieces", flightPieces));
@@ -181,7 +188,7 @@ public final class LobbyManager {
 
     public boolean setPokerArenaStyle(Player player, PokerArenaStyle style) {
         if (style == null) {
-            Text.send(player, Messages.msg("lobby.decor.invalid"));
+            Text.send(player, Messages.msg("lobby.decor.invalid", "count", PokerArenaStyle.count()));
             return false;
         }
         GameLobby lobby = byMember.get(player.getUniqueId());

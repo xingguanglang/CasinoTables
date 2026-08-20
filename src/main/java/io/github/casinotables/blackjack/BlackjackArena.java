@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.UUID;
 
 final class BlackjackArena {
-    static final String ENTITY_TAG = "casinotables_blackjack_display";
+    static final String ENTITY_TAG = io.github.casinotables.arena.ArenaTags.BLACKJACK_ENTITY;
     /** 快捷栏前五格是按钮，实体筹码从第六格开始，保证手里能直接拿到筹码。 */
     private static final int RESERVED_SLOTS = 5;
     private static final int ROOM_X = 20;

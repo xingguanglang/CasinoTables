@@ -84,7 +84,13 @@ final class PokerRecords {
             if (!(entry.get("players") instanceof List<?> values) || !values.contains(id)) continue;
             long time = number(entry.get("time"), 0L);
             boolean won = entry.get("winners") instanceof List<?> winners && winners.contains(id);
-            Object names = entry.get("names");
+            // 直接塞 List 会渲染成 [Steve, Alex]（带方括号），而且绕过语言文件里的分隔符。
+        Object rawNames = entry.get("names");
+        String names = rawNames instanceof java.util.List<?> list
+                ? list.stream().map(String::valueOf)
+                        .collect(java.util.stream.Collectors.joining(
+                                Messages.msg("poker.common.name-separator")))
+                : String.valueOf(rawNames == null ? "" : rawNames);
             int side = values.indexOf(id);
             long initial = listNumber(entry.get("initial-stacks"), side);
             long returned = listNumber(entry.get("early-cash-outs"), side)

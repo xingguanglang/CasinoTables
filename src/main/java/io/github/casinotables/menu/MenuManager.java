@@ -118,6 +118,10 @@ public final class MenuManager {
                 player.closeInventory();
                 plugin.poker().showHistory(player);
             }
+            case "@bjhistory" -> {
+                player.closeInventory();
+                plugin.blackjack().showHistory(player);
+            }
             default -> {
                 player.performCommand(action);
                 if (page == GameMenuHolder.Page.OPEN_ROOMS && action.startsWith("casino join ")) {
@@ -219,7 +223,7 @@ public final class MenuManager {
         }
 
         put(inventory, holder, 45, Material.WRITTEN_BOOK, Messages.msg("menu.main.history.poker"), "@history");
-        put(inventory, holder, 46, Material.BOOK, Messages.msg("menu.main.history.other"), "@zhistory");
+        put(inventory, holder, 46, Material.BOOK, Messages.msg("menu.main.history.other"), "@bjhistory");
         put(inventory, holder, 49, Material.WRITABLE_BOOK, Messages.msg("menu.common.to-chat.name"), "@chat",
                 Messages.msg("menu.common.to-chat.lore"));
         put(inventory, holder, 53, Material.BARRIER, Messages.msg("menu.common.close"), "@close");
@@ -476,7 +480,9 @@ public final class MenuManager {
     }
 
     private void acceptInput(Player player, InputMode mode, String input) {
-        if (input.equalsIgnoreCase("cancel") || input.equals("取消")) {
+        // 放弃用的关键词要跟提示语一起走语言文件，否则翻译者改了提示、玩家照着打就卡在输入循环里。
+        // "cancel" 永远保底接受，免得某份语言文件把这个词删了就没法退出。
+        if (input.equalsIgnoreCase("cancel") || input.equalsIgnoreCase(Messages.msg("menu.input.cancel-word"))) {
             Text.send(player, Messages.msg("menu.input.cancelled"));
             openMain(player);
             return;

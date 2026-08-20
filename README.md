@@ -47,12 +47,14 @@ from novice to expert:
 
 | Bot | Tier | Style |
 |---|---|---|
-| Reckless | Novice | Plays almost anything, raises on impulse |
+| Hothead | Novice | Plays almost anything, raises on impulse |
 | Calling Station | Novice | Rarely raises, rarely folds |
-| Rock | Intermediate | Only good hands, but plays them softly |
-| Berserker | Intermediate | Extremely aggressive, reads hands poorly |
-| Ice | Expert | Tight-aggressive, folds and pressures correctly |
-| Old Fox | Expert | Reads accurately and bluffs at the right moments |
+| The Rock | Regular | Only good hands, but plays them softly |
+| Maniac | Regular | Extremely aggressive, reads hands poorly |
+| The Assassin | Pro | Tight-aggressive, folds and pressures correctly |
+| Old Fox | Pro | Reads accurately and bluffs at the right moments |
+
+Seat names carry a `BOT·` prefix in game, so The Rock appears as `BOT·The Rock`.
 
 Skill is not cosmetic. It scales the Monte-Carlo sample count, adds a hand-strength misread margin,
 and weights how strictly the bot respects pot odds — so a novice genuinely misjudges hands rather

@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 final class FlightArena {
-    static final String PIECE_TAG = "casinotables_flight_piece";
+    static final String PIECE_TAG = io.github.casinotables.arena.ArenaTags.FLIGHT_PIECE;
     private static final DyeColor[] DYES = {DyeColor.RED, DyeColor.YELLOW, DyeColor.BLUE, DyeColor.GREEN};
     private static final Material[] COLORS = {
             Material.RED_CONCRETE, Material.YELLOW_CONCRETE,

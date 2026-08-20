@@ -1,5 +1,6 @@
 package io.github.casinotables.listener;
 
+import io.github.casinotables.arena.ArenaTags;
 import io.github.casinotables.CasinoTablesPlugin;
 import io.github.casinotables.Text;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -156,9 +157,10 @@ public final class GameListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageEvent event) {
-        if (event.getEntity().getScoreboardTags().contains("casinotables_flight_piece")
-                || event.getEntity().getScoreboardTags().contains("casinotables_poker_display")
-                || event.getEntity().getScoreboardTags().contains("casinotables_zha_display")) {
+        // 用各竞技场自己的常量，别再抄字面量：抄错一个字母监听器就静默失灵。
+        if (event.getEntity().getScoreboardTags().contains(ArenaTags.FLIGHT_PIECE)
+                || event.getEntity().getScoreboardTags().contains(ArenaTags.POKER_DISPLAY)
+                || event.getEntity().getScoreboardTags().contains(ArenaTags.BLACKJACK_ENTITY)) {
             event.setCancelled(true);
         } else if (event.getEntity() instanceof Player player && plugin.protectedPlayer(player.getUniqueId())) {
             event.setCancelled(true);
@@ -212,9 +214,8 @@ public final class GameListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        if (event.getRightClicked().getScoreboardTags().contains("casinotables_poker_display")) {
-            event.setCancelled(true);
-        } else if (event.getRightClicked().getScoreboardTags().contains("casinotables_zha_display")) {
+        if (event.getRightClicked().getScoreboardTags().contains(ArenaTags.POKER_DISPLAY)
+                || event.getRightClicked().getScoreboardTags().contains(ArenaTags.BLACKJACK_ENTITY)) {
             event.setCancelled(true);
         }
     }

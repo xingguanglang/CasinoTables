@@ -440,9 +440,14 @@ public final class GameCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    /** 把第 from 个参数起的部分拼回一个字符串，供带空格的显示名解析使用。 */
+    private static String joinArgs(String[] args, int from) {
+        return String.join(" ", java.util.Arrays.copyOfRange(args, from, args.length)).trim();
+    }
+
     private void casino(Player player, String[] args) {
         PokerArenaStyle current = plugin.lobbies().pokerArenaStyle(player.getUniqueId());
-        if (args.length != 2) {
+        if (args.length < 2) {
             Text.send(player, Messages.msg("decor.list.header", "count", PokerArenaStyle.count()));
             for (PokerArenaStyle option : PokerArenaStyle.values()) {
                 Text.send(player, Messages.msg(option == current ? "decor.list.selected" : "decor.list.entry",
@@ -450,7 +455,9 @@ public final class GameCommand implements CommandExecutor, TabCompleter {
             }
             return;
         }
-        PokerArenaStyle style = PokerArenaStyle.parse(args[1]);
+        // 装潢名带空格（"Royal Green"），必须把剩下的参数拼回来再解析，
+        // 否则英文环境下按名字选装潢这条路整个走不通。
+        PokerArenaStyle style = PokerArenaStyle.parse(joinArgs(args, 1));
         if (style == null) {
             Text.send(player, Messages.msg("decor.unknown", "count", PokerArenaStyle.count()));
             return;
@@ -460,7 +467,7 @@ public final class GameCommand implements CommandExecutor, TabCompleter {
 
     private void shape(Player player, String[] args) {
         ArenaShape current = plugin.lobbies().arenaShape(player.getUniqueId());
-        if (args.length != 2) {
+        if (args.length < 2) {
             Text.send(player, Messages.msg("shape.list.header", "count", ArenaShape.count()));
             for (ArenaShape option : ArenaShape.values()) {
                 Text.send(player, Messages.msg(option == current ? "shape.list.selected" : "shape.list.entry",
@@ -469,7 +476,7 @@ public final class GameCommand implements CommandExecutor, TabCompleter {
             Text.send(player, Messages.msg("shape.list.footer"));
             return;
         }
-        ArenaShape shape = ArenaShape.parse(args[1]);
+        ArenaShape shape = ArenaShape.parse(joinArgs(args, 1));
         if (shape == null) {
             Text.send(player, Messages.msg("shape.unknown", "count", ArenaShape.count()));
             return;
@@ -489,12 +496,11 @@ public final class GameCommand implements CommandExecutor, TabCompleter {
 
     private void help(Player player) {
         Text.send(player, Messages.msg("help.header", "brand", plugin.brand()));
-        for (String line : Messages.msgList("help.lines", "styles", PokerArenaStyle.count())) {
+        for (String line : Messages.msgList("help.lines", "styles", PokerArenaStyle.count(), "shapes", ArenaShape.count())) {
             Text.send(player, line);
         }
         if (!player.hasPermission("casinotables.admin")) return;
-        for (String line : Messages.msgList("help.admin-lines",
-                "styles", PokerArenaStyle.count(), "shapes", ArenaShape.count())) {
+        for (String line : Messages.msgList("help.admin-lines")) {
             Text.send(player, line);
         }
     }
@@ -534,7 +540,7 @@ public final class GameCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 2 && args[0].equalsIgnoreCase("config") && sender.hasPermission("casinotables.admin")) {
             values.addAll(List.of("get", "set"));
         } else if (args.length == 2 && isLuckCommand(args[0]) && sender.hasPermission("casinotables.admin")) {
-            values.addAll(List.of("poker", "zha"));
+            values.addAll(List.of("poker", "texas"));  // luck() 只认这两个别名
         } else if (args.length == 3 && isLuckCommand(args[0]) && sender.hasPermission("casinotables.admin")) {
             for (Player player : Bukkit.getOnlinePlayers()) values.add(player.getName());
         } else if (args.length == 4 && isLuckCommand(args[0]) && sender.hasPermission("casinotables.admin")) {

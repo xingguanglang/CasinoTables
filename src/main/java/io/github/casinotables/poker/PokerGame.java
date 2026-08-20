@@ -743,15 +743,8 @@ final class PokerGame {
         Set<Integer> winningSides = new HashSet<>();
         TreeSet<Integer> levels = new TreeSet<>();
         for (int value : contribution) if (value > 0) levels.add(value);
-        int rakeablePot = 0;
-        int previousLevel = 0;
-        for (int level : levels) {
-            int contributors = 0;
-            for (int value : contribution) if (value >= level) contributors++;
-            int layer = (level - previousLevel) * contributors;
-            previousLevel = level;
-            if (contributors > 1) rakeablePot += layer;
-        }
+        // 抽水基数与弃牌收底共用同一套分层算法，见 PokerMoney.contestedPot。
+        int rakeablePot = PokerMoney.contestedPot(contribution);
         lastHandRake = calculateRake(rakeablePot);
         int rakeTaken = 0;
         int cumulativeRakeable = 0;
@@ -800,7 +793,7 @@ final class PokerGame {
         int winner = -1;
         for (int side = 0; side < players.length; side++) if (!folded[side]) winner = side;
         if (winner < 0) return;
-        lastHandRake = calculateRake(pot);
+        lastHandRake = calculateRake(PokerMoney.contestedPot(contribution));
         int award = pot - lastHandRake;
         stack[winner] += award;
         handAwards[winner] += award;

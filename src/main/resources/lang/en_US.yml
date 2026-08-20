@@ -26,7 +26,7 @@ help:
     - "<yellow>/casino blinds <small> <big></yellow> <gray>- host sets the Hold'em blinds"
     - "<yellow>/casino buyin <limit></yellow> <gray>- host sets the chip carry limit"
     - "<yellow>/casino casino [1-{styles}]</yellow> <gray>- switch table decor; no argument lists them all"
-    - "<yellow>/casino shape [1-4]</yellow> <gray>- switch room shape; no argument lists them all"
+    - "<yellow>/casino shape [1-{shapes}]</yellow> <gray>- switch room shape; no argument lists them all"
     - "<yellow>/casino history</yellow> <gray>- your recent Hold'em hands"
     - "<yellow>/casino bjhistory</yellow> <gray>- your recent Blackjack hands"
     - "<yellow>/casino split</yellow> <gray>- break the chip in your main hand into smaller ones"
@@ -593,11 +593,11 @@ lobby:
     in-game: "<red>You cannot create a room while you are in a game."
     pieces: "<gray>Each player gets <white>{pieces} pieces</white>. The host can change that with <yellow>/casino pieces 2|3|4</yellow>."
     stakes:
-      blackjack: "<gray>Ante/raise limits <white>{small}/{big}</white>, carry limit <white>{buyin}</white>. The host can change them with <yellow>/casino blinds</yellow> and <yellow>/casino buyin</yellow>. Table decor: <white>{decor}</white>, switch it with <yellow>/casino casino 1|2|3</yellow>.</gray>"
-      poker: "<gray>Blinds <white>{small}/{big}</white>, carry limit <white>{buyin}</white>. The host can change them with <yellow>/casino blinds</yellow> and <yellow>/casino buyin</yellow>. Table decor: <white>{decor}</white>, switch it with <yellow>/casino casino 1|2|3</yellow>.</gray>"
+      blackjack: "<gray>Bet limits <white>{min}</white>-<white>{max}</white> per hand, carry limit <white>{buyin}</white>. The host can change the carry limit with <yellow>/casino buyin</yellow>. Table decor: <white>{decor}</white>, switch it with <yellow>/casino casino 1-{styles}</yellow>.</gray>"
+      poker: "<gray>Blinds <white>{small}/{big}</white>, carry limit <white>{buyin}</white>. The host can change them with <yellow>/casino blinds</yellow> and <yellow>/casino buyin</yellow>. Table decor: <white>{decor}</white>, switch it with <yellow>/casino casino 1-{styles}</yellow>.</gray>"
   decor:
     changed: "<gold>The host switched the table decor to <white>{id} · {name}</white>.</gold> <gray>{description}</gray>"
-    invalid: "<red>Table decor must be 1, 2 or 3.</red>"
+    invalid: "<red>Table decor must be between 1 and {count}.</red>"
     not-host: "<red>Only the host can change the table decor.</red>"
     preference: "<green>Your table decor is now <white>{id} · {name}</white>. It applies to the next Hold'em or Blackjack room you create.</green>"
   disbanded: "<yellow>The host disbanded the room."
@@ -733,6 +733,7 @@ menu:
     blinds-prompt: "<yellow>Type two table stakes, for example <white>10 20</white>: in Hold'em these are the small and big blind. Type \"cancel\" to abort.</yellow>"
     buyin-invalid: "<red>Enter a whole number for the carry limit, for example: <yellow>2000</yellow>."
     buyin-prompt: "<yellow>Type the chip carry limit per player, for example <white>2000</white>; type \"cancel\" to abort.</yellow>"
+    cancel-word: "cancel"
     cancelled: "<gray>Input cancelled."
   invite:
     no-host-room: "<red>Create a Ludo, Hold'em or Blackjack room that you host first."
@@ -1125,8 +1126,6 @@ poker:
     small-blind: "Small Blind"
   room:
     detail: "Blinds {small}/{big}, carry limit {limit}, bots fill the empty seats"
-  seat:
-    empty: "Empty seat"
   session:
     broadcast-result: "<gold><bold>Hold'em final result:</bold></gold><green> {winners} wins</green> <gray>({reason})</gray>"
     paid: "<green>Your Hold'em cash-out has landed:</green><yellow>{amount}</yellow>."

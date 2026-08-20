@@ -41,6 +41,8 @@ final class BlackjackGame {
     private final BlackjackManager manager;
     private final BlackjackArena arena;
     private final UUID hostId;
+    /** 开局时定死的房主名。座位名会被「空位」这类本地化文本覆盖，不能拿来当身份。 */
+    private final String hostName;
 
     private final UUID[] players = new UUID[MAX_SEATS];
     private final String[] names = new String[MAX_SEATS];
@@ -82,6 +84,7 @@ final class BlackjackGame {
         this.plugin = plugin;
         this.manager = manager;
         this.hostId = participants.getFirst().getUniqueId();
+        this.hostName = participants.getFirst().getName();
         this.carryLimit = carryLimit;
         this.minBet = Math.max(1, minBet);
         this.maxBet = Math.max(this.minBet, maxBet);
@@ -1080,6 +1083,8 @@ final class BlackjackGame {
     void hidePrivateFrom(Player player) { if (arena != null) arena.hidePrivateFrom(player); }
     void closeArena() { if (arena != null) arena.close(); }
     UUID hostId() { return hostId; }
+
+    String hostName() { return hostName; }
     UUID playerAt(int side) { return players[side]; }
     String nameAt(int side) { return names[side]; }
     boolean seatedAt(int side) { return seated[side]; }

@@ -26,7 +26,7 @@ help:
     - "<yellow>/casino blinds <小盲> <大盲></yellow> <gray>- 房主设置德州盲注"
     - "<yellow>/casino buyin <上限></yellow> <gray>- 房主设置筹码携带上限"
     - "<yellow>/casino casino [1～{styles}]</yellow> <gray>- 切换赌场装修；不带参数会列出全部"
-    - "<yellow>/casino shape [1～4]</yellow> <gray>- 切换赌场轮廓；不带参数会列出全部"
+    - "<yellow>/casino shape [1～{shapes}]</yellow> <gray>- 切换赌场轮廓；不带参数会列出全部"
     - "<yellow>/casino history</yellow> <gray>- 你最近的德州牌局"
     - "<yellow>/casino bjhistory</yellow> <gray>- 你最近的 21 点牌局"
     - "<yellow>/casino split</yellow> <gray>- 把主手里的一枚筹码等值分解"
@@ -571,7 +571,7 @@ lobby:
   bet:
     changed: "<gold>房主把每人赌注改为 <white>{amount}</white>；旧邀请已作废，请重新邀请尚未进房的玩家。"
     not-host: "<red>只有房主可以修改当前房间的赌注。"
-    real-currency: "<red>德州和炸金花不使用固定赌注；桌上筹码就是 Vault 真实游戏币。"
+    real-currency: "<red>德州和 21 点不使用固定赌注；桌上筹码就是 Vault 真实游戏币。"
   blinds:
     changed: "<gold>房主把盲注改为 <white>{small}/{big}</white>。"
     invalid: "<red>牌桌参数必须满足：1 ≤ 第一参数 ≤ 10000，且第一参数 < 第二参数 ≤ min({maximum}，第一参数×200)。</red>"
@@ -593,11 +593,11 @@ lobby:
     in-game: "<red>你正在游戏中，不能创建房间。"
     pieces: "<gray>当前每人 <white>{pieces} 枚棋子</white>；房主可用 <yellow>/casino pieces 2|3|4</yellow> 修改。"
     stakes:
-      blackjack: "<gray>当前底注/加注参数 <white>{small}/{big}</white>，携带上限 <white>{buyin}</white>；房主可用 <yellow>/casino blinds</yellow>、<yellow>/casino buyin</yellow> 修改。赌场模板：<white>{decor}</white>，可用 <yellow>/casino casino 1|2|3</yellow> 切换。</gray>"
-      poker: "<gray>当前盲注 <white>{small}/{big}</white>，携带上限 <white>{buyin}</white>；房主可用 <yellow>/casino blinds</yellow>、<yellow>/casino buyin</yellow> 修改。赌场模板：<white>{decor}</white>，可用 <yellow>/casino casino 1|2|3</yellow> 切换。</gray>"
+      blackjack: "<gray>每手下注区间 <white>{min}</white>-<white>{max}</white>，携带上限 <white>{buyin}</white>；房主可用 <yellow>/casino buyin</yellow> 修改携带上限。赌场模板：<white>{decor}</white>，可用 <yellow>/casino casino 1-{styles}</yellow> 切换。</gray>"
+      poker: "<gray>当前盲注 <white>{small}/{big}</white>，携带上限 <white>{buyin}</white>；房主可用 <yellow>/casino blinds</yellow>、<yellow>/casino buyin</yellow> 修改。赌场模板：<white>{decor}</white>，可用 <yellow>/casino casino 1-{styles}</yellow> 切换。</gray>"
   decor:
     changed: "<gold>房主把赌场模板切换为 <white>{id} · {name}</white>。</gold> <gray>{description}</gray>"
-    invalid: "<red>赌场模板只能选择 1、2 或 3。</red>"
+    invalid: "<red>赌场模板只能选择 1 到 {count}。</red>"
     not-host: "<red>只有房主可以切换赌场模板。</red>"
     preference: "<green>赌场模板偏好已设为 <white>{id} · {name}</white>；下次创建德州或 21 点房间时使用。</green>"
   disbanded: "<yellow>房主解散了房间。"
@@ -617,7 +617,7 @@ lobby:
     not-in-room: "<red>你当前不在房间中。"
   left: "<yellow>{player} 离开了房间。</yellow> <gray>当前 {size}/{maximum} 人。</gray>"
   member-quit: "<yellow>{player} 离线并离开了房间。"
-  not-casino-room: "<red>当前房间不是德州或炸金花。</red>"
+  not-casino-room: "<red>当前房间不是德州或 21 点牌桌。</red>"
   not-flight-room: "<red>当前房间不是飞行棋。"
   pieces:
     changed: "<gold>房主把飞行棋改为每人 <white>{pieces} 枚棋子</white>。"
@@ -676,7 +676,7 @@ menu:
       label: "<gold><bold>[创建德州扑克房间]</bold></gold>"
     room: "<gray>当前房间：</gray><white>{game}</white> <gray>· {current}/{max} 人 · {rules}</gray>"
     rooms:
-      hover: "等待房可加入；进行中德州/炸金花可下手入座；飞行棋/迷宫可观战"
+      hover: "等待房可加入；进行中的德州可下手入座；飞行棋可观战"
       label: "<aqua><bold>[加入现有房间：{count} 个可加入]</bold></aqua>"
     start:
       hover-bots: "可直接开始，BOT 自动补满六席"
@@ -730,12 +730,13 @@ menu:
     bet-prompt: "<yellow>请直接在聊天框输入赌注金额（1～10000），输入“取消”放弃。</yellow>"
     bet-set: "<green>邀请赌注已设为 <yellow>{bet}</yellow>。"
     blinds-invalid: "<red>请输入两个整数，例如：<yellow>10 20</yellow>。"
-    blinds-prompt: "<yellow>请输入两个牌桌参数，例如 <white>10 20</white>：德州为小盲/大盲；炸金花为底注 10、加注步长 10。输入“取消”放弃。</yellow>"
+    blinds-prompt: "<yellow>请输入两个牌桌参数，例如 <white>10 20</white>：德州为小盲/大盲。输入“取消”放弃。</yellow>"
     buyin-invalid: "<red>请输入整数金币上限，例如：<yellow>2000</yellow>。"
     buyin-prompt: "<yellow>请输入每名玩家的携带金币上限，例如 <white>2000</white>；输入“取消”放弃。</yellow>"
+    cancel-word: "取消"
     cancelled: "<gray>已取消输入。"
   invite:
-    no-host-room: "<red>请先创建一个由你担任房主的飞行棋、德州、炸金花或迷宫竞速房间。"
+    no-host-room: "<red>请先创建一个由你担任房主的飞行棋、德州或 21 点房间。"
   invites:
     empty: "<gray>没有可邀请的在线玩家</gray>"
     invite:
@@ -754,7 +755,7 @@ menu:
       lore-players: "<gray>1～6 人，各自与荷官对赌，一个人也能开</gray>"
       name: "<dark_aqua><bold>创建 21 点牌桌</bold></dark_aqua>"
     blinds:
-      lore-current: "<white>德州小/大盲；炸金花底注/参数：</white>{small}/{big}"
+      lore-current: "<white>德州小盲/大盲：</white>{small}/{big}"
       name: "<gold>设置赌场牌桌参数</gold>"
     buyin:
       lore-current: "<white>当前：</white>{limit}"
@@ -772,7 +773,7 @@ menu:
       lore-wager: "<yellow>赌注：</yellow>{bet}"
       name: "<aqua><bold>创建飞行棋房间</bold></aqua>"
     history:
-      other: "<light_purple>炸金花历史记录</light_purple>"
+      other: "<light_purple>21 点历史记录</light_purple>"
       poker: "<gold>德州历史记录</gold>"
     invite:
       lore: "<gray>邀请后面板不会退出</gray>"
@@ -792,7 +793,7 @@ menu:
       name: "<white>当前房间：{game}</white>"
     rooms:
       lore-count: "<white>当前可加入：</white>{count}"
-      lore-what: "<gray>等待房可加入；进行中德州/炸金花可下手入座；飞行棋/迷宫可观战</gray>"
+      lore-what: "<gray>等待房可加入；进行中的德州可下手入座；飞行棋可观战</gray>"
       name: "<aqua><bold>加入现有房间</bold></aqua>"
     start:
       lore-bots: "<gray>可直接开始，BOT 自动补满六席</gray>"
@@ -802,7 +803,7 @@ menu:
     wager:
       lore-current: "<white>当前：</white>{bet}"
       lore-range: "<gray>范围 1～10000</gray>"
-      name: "<yellow>修改飞行棋/迷宫赌注</yellow>"
+      name: "<yellow>修改飞行棋赌注</yellow>"
   mode:
     chat: "<green>初始菜单已切换为聊天点击版。</green>"
     gui: "<green>初始菜单已切换为 GUI 版。</green>"
@@ -1125,8 +1126,6 @@ poker:
     small-blind: "小盲"
   room:
     detail: "盲注 {small}/{big}，携带上限 {limit}，BOT 自动补满六席"
-  seat:
-    empty: "空位"
   session:
     broadcast-result: "<gold><bold>德州扑克最终结果：</bold></gold><green>{winners} 获胜</green> <gray>（{reason}）</gray>"
     paid: "<green>德州真实游戏币已结算到账：</green><yellow>{amount}</yellow>。"

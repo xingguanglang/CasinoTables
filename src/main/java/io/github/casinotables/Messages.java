@@ -37,6 +37,8 @@ public final class Messages {
     private static final String DEFAULT_LANGUAGE = "en_US";
     /** jar 里内置的语言，缺失的 key 一律回落到这一份。 */
     private static final String FALLBACK_LANGUAGE = "en_US";
+    /** jar 内自带的语言，启动时全部释放到数据目录供服主参考和修改。 */
+    private static final List<String> BUNDLED_LANGUAGES = List.of("en_US", "zh_CN");
 
     /** 构建期自检用 bindStandalone() 时为 null，那时候没有服务器可以写日志。 */
     private final CasinoTablesPlugin plugin;
@@ -104,10 +106,10 @@ public final class Messages {
         File external = new File(new File(plugin.getDataFolder(), "lang"), language + ".yml");
         if (external.isFile()) {
             loadInto(values, lists, YamlConfiguration.loadConfiguration(external));
-        } else {
-            saveBundled(language);
         }
-        if (!FALLBACK_LANGUAGE.equals(language)) saveBundled(FALLBACK_LANGUAGE);
+        // 把 jar 里所有语言都释放出来，不只是当前这一份：
+        // 服主想照着另一种语言改措辞，不该被迫先解压 jar。
+        for (String code : BUNDLED_LANGUAGES) saveBundled(code);
     }
 
     private YamlConfiguration bundled(String code) {

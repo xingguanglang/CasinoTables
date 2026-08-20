@@ -33,7 +33,7 @@ import java.util.UUID;
 final class PokerArena {
     record ControlButton(int side, Material action) { }
 
-    static final String DISPLAY_TAG = "casinotables_poker_display";
+    static final String DISPLAY_TAG = io.github.casinotables.arena.ArenaTags.POKER_DISPLAY;
     /**
      * 空座位的内部哨兵：PokerGame 清空座位时写入同一个值，这里只参与 equals 比较，从不显示给玩家——
      * 座位牌上的文字走 poker.arena.seat.empty。连字符不是合法用户名字符，所以永远撞不上真实玩家名。
